@@ -9,7 +9,7 @@ img_counter = 0
 
 while True:
     ret, frame = cam.read()
-    imgScale = 1
+    imgScale = 0.4
     newX, newY = frame.shape[1] * imgScale, frame.shape[0] * imgScale
     scaled_img = cv2.resize(frame, (int(newX), int(newY)))
     hsv_image = cv2.cvtColor(scaled_img, cv2.COLOR_BGR2HSV)
@@ -36,7 +36,6 @@ while True:
     b_range = (0, 80)
 
     cv2.imshow("Show by CV2", frame_threshed_closed)
-    # cv2.imshow("test", frame)
     if not ret:
         break
     k = cv2.waitKey(1)
@@ -47,7 +46,6 @@ while True:
         break
     elif k % 256 == 32:
         print("%d x %d" % (len(hsv_image), len(hsv_image[0])))
-        # print(hsv_image[239])
         h_table = []
         s_table = []
         for i in range(0, len(hsv_image)):
@@ -75,8 +73,6 @@ while True:
         # SPACE pressed
         img_name = "opencv_frame_{}.png".format(img_counter)
         cv2.imwrite(img_name, output_img)
-        # print(bgra)
-        #
         print("{} written!".format(img_name))
         img_counter += 1
 
