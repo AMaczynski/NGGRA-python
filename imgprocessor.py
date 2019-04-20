@@ -38,7 +38,7 @@ class ImageProcessor:
                 break
             cv2.imshow("Show by CV2", processed_image)
             if grabber_state == STATE_GRABBING:
-                img_name = "output/%s/%s_%d.png" % (file_name, file_name, img_counter)
+                img_name = "output/%s/%s_%d.jpg" % (file_name, file_name, img_counter)
                 cv2.imwrite(img_name, processed_image)
                 print("{} written!".format(img_name))
                 img_counter += 1
