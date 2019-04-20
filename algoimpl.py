@@ -7,9 +7,14 @@ import numpy as np
 def simple_algorithm(frame, hsv_ranges=None):
     hsv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    h_range = (0, 80)
-    s_range = (0, 255)
-    v_range = (148, 255)
+    # h_range = (0, 80)
+    # s_range = (0, 255)
+    # v_range = (148, 255)
+
+    h_range = (80, 110)
+    s_range = (100, 255)
+    v_range = (140, 255)
+
     if hsv_ranges is not None:
         h_range = hsv_ranges[0]
         s_range = hsv_ranges[1]
@@ -42,8 +47,8 @@ def advanced_algorithm(frame):
                     r - g) > 15:
                 output_img[i][j] = 255
             elif r > 95 and g > 40 and b > 20 and r > g and r > b and abs(
-                    r - g) > 15 and cr > 135 and cb > 85 and y > 80 and cr <= ((1.5862 * cb) + 20) and cr >= (
-                    (0.3448 * cb) + 76.2069) and cr >= ((-4.5652 * cb) + 234.5652) and cr <= (
+                    r - g) > 15 and cr > 135 and cb > 85 and y > 80 and ((1.5862 * cb) + 20) >= cr >= (
+                    (0.3448 * cb) + 76.2069) and ((-4.5652 * cb) + 234.5652) <= cr <= (
                     (-1.15 * cb) + 301.75) and cr <= ((-2.2857 * cb) + 432.85):
                 output_img[i][j] = 255
             else:
