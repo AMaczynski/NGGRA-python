@@ -4,6 +4,7 @@ from time import sleep
 import cv2
 
 from algoimpl import simple_algorithm, advanced_algorithm
+from classifier import Classifier
 
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
@@ -21,11 +22,25 @@ class ImageProcessor:
     def redefine_simple_algorithm(self, hsv_ranges):
         self.custom_simple_ranges = hsv_ranges
 
-    def start_tensorflow_analyser(self, target_algorithm):
+    def start_tensorflow_analyser(self, target_algorithm, detector, display = False):
+        self.classifier = Classifier()
         while True:
             processed_image = self.get_processed_image(target_algorithm)
-            # TODO: gesture = tensorflow(processed_image)
-            break
+            if processed_image is None:
+                break
+            results = self.classifier.label_image(processed_image)
+            print(results)
+            if results[0][1] > 0.7:
+                detector.on_gesture(results[-1][0])
+            else:
+                detector.on_gesture(None)
+            if display:
+                cv2.imshow("Show by CV2", processed_image)
+                k = cv2.waitKey(1)
+                if k % 256 == 27:  # ESC
+                    print("Escape hit, closing...")
+                    break
+
         self.cam.release()
         cv2.destroyAllWindows()
 
@@ -70,4 +85,5 @@ class ImageProcessor:
             processed_image = simple_algorithm(scaled_img, self.custom_simple_ranges)
         elif target_algorithm == ALGO_ADV:
             processed_image = advanced_algorithm(scaled_img)
+
         return processed_image
