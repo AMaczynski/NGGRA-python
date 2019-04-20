@@ -7,7 +7,7 @@ ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
 algorithm = ALGO_SIMPLE
-capture_name = "fist"
+capture_name = "palm"
 images_to_capture = 300
 capture_delay = 0.1
 
