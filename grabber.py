@@ -1,11 +1,10 @@
 import sys
 
 import cv2
-from comtypes import CLSCTX_ALL, POINTER, cast
 
+from FunctionManager import speakersMute
 from imgprocessor import ImageProcessor
 
-from pycaw.pycaw import AudioUtilities
 
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
@@ -14,14 +13,7 @@ algorithm = ALGO_SIMPLE
 capture_name = "palm"
 images_to_capture = 300
 capture_delay = 0.1
-def speakersMute():
-    sessions = AudioUtilities.GetAllSessions()
-    for session in sessions:
-        volume = session.SimpleAudioVolume
-        if session.Process and session.Process.name() == "chrome.exe":
-            volume.SetMute(0, None)
-        else:
-            volume.SetMute(1, None)
+
 
 
 
