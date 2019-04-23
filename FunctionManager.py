@@ -15,17 +15,17 @@ def speakersMute():
 
 
 def speakersChangeVolumeLevel(mode):
-    a = 0
+    changeLevel = 0
     if(mode == 1):
-        a=0.1
+        changeLevel=0.1
     else:
-        a=-0.1
+        changeLevel=-0.1
 
     sessions = AudioUtilities.GetAllSessions()
     for session in sessions:
         volume = session._ctl.QueryInterface(ISimpleAudioVolume)
         if session.Process and session.Process.name() == "chrome.exe":
-            volume.SetMasterVolume(volume.GetMasterVolume()+a, None)
+            volume.SetMasterVolume(volume.GetMasterVolume()+ changeLevel, None)
 
 
 def changeBrightness(brightnessLevel):
