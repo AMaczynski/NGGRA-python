@@ -19,6 +19,7 @@ capture_delay = 0.1
 
 # usage: python grabber.py <gesture_name>
 if __name__ == '__main__':
+    changeBrigthness()
     if len(sys.argv) >= 2:
         capture_name = sys.argv[1]
 
