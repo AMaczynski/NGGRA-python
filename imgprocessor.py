@@ -31,7 +31,7 @@ class ImageProcessor:
             results = self.classifier.label_image(processed_image)
             print(results)
             if results[0][1] > 0.7:
-                detector.on_gesture(results[-1][0])
+                detector.on_gesture(results[0][0])
             else:
                 detector.on_gesture(None)
             if display:
