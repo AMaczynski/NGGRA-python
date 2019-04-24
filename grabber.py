@@ -1,43 +1,52 @@
-import sys
+import os
 
 import cv2
 
-from FunctionManager import *
 from imgprocessor import ImageProcessor
-
 
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
 algorithm = ALGO_SIMPLE
-capture_name = "palm"
-images_to_capture = 300
-capture_delay = 0.1
+capture_name = "straight"
+images_to_capture = 10
+capture_delay = 1
 
+save_raw = True
+save_bin = True
+save_cropped_bin = True
 
-
-
-# usage: python grabber.py <gesture_name>
 if __name__ == '__main__':
-    if len(sys.argv) >= 2:
-        capture_name = sys.argv[1]
-
     cam = cv2.VideoCapture(0)
     # ImageProcessor(cam reference, image scale)
     ip = ImageProcessor(cam, 0.5)
+    dir_path = "output/%s" % capture_name
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    dir_path = "output_cropped/%s" % capture_name
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
+    start_number = 0
+    dir_path = "output_raw/%s" % capture_name
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    else:
+        files = os.listdir(dir_path)
+        for file in files:
+            number = int(file.split("_")[-1][:-4])
+            print(number)
+            if number > start_number:
+                start_number = number
+        start_number += 1
     if algorithm is ALGO_SIMPLE:
         # custom_hsv_ranges = ((20, 50), # H
         #                      (0,255), # S
         #                      (0,120)) # V
-        custom_hsv_ranges = ((120, 165),  # H
-                             (130, 255),  # S
-                             (20, 255))  # V
+        custom_hsv_ranges = ((80, 110),  # H
+                             (100, 255),  # S
+                             (140, 255))  # V
         ip.redefine_simple_algorithm(custom_hsv_ranges)
-        ip.start_grabber(ALGO_SIMPLE, capture_name, images_to_capture, capture_delay)
+        ip.start_grabber(ALGO_SIMPLE, capture_name, images_to_capture, capture_delay, start_number)
     elif algorithm is ALGO_ADV:
-        ip.start_grabber(ALGO_ADV, capture_name, images_to_capture, capture_delay)
-
-
-
-
+        ip.start_grabber(ALGO_ADV, capture_name, images_to_capture, capture_delay, start_number)
