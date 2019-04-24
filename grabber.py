@@ -8,9 +8,9 @@ ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
 algorithm = ALGO_SIMPLE
-capture_name = "none"
-images_to_capture = 1000
-capture_delay = 0.005
+capture_name = "straight"
+images_to_capture = 10
+capture_delay = 1
 
 save_raw = True
 save_bin = True
@@ -42,8 +42,8 @@ if __name__ == '__main__':
         # custom_hsv_ranges = ((20, 50), # H
         #                      (0,255), # S
         #                      (0,120)) # V
-        custom_hsv_ranges = ((70, 120),  # H
-                             (80, 255),  # S
+        custom_hsv_ranges = ((80, 110),  # H
+                             (100, 255),  # S
                              (140, 255))  # V
         ip.redefine_simple_algorithm(custom_hsv_ranges)
         ip.start_grabber(ALGO_SIMPLE, capture_name, images_to_capture, capture_delay, start_number)
