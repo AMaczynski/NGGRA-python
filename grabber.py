@@ -35,7 +35,6 @@ if __name__ == '__main__':
         files = os.listdir(dir_path)
         for file in files:
             number = int(file.split("_")[-1][:-4])
-            print(number)
             if number > start_number:
                 start_number = number
         start_number += 1
