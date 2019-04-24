@@ -2,7 +2,7 @@ import sys
 
 import cv2
 
-from FunctionManager import speakersMute
+from FunctionManager import *
 from imgprocessor import ImageProcessor
 
 
@@ -19,7 +19,6 @@ capture_delay = 0.1
 
 # usage: python grabber.py <gesture_name>
 if __name__ == '__main__':
-    speakersMute()
     if len(sys.argv) >= 2:
         capture_name = sys.argv[1]
 
