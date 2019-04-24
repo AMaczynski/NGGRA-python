@@ -72,6 +72,8 @@ class ImageProcessor:
             if processed_image is None:
                 break
             cv2.imshow("Show by CV2", processed_image)
+            k = cv2.waitKey(1)
+
             if grabber_state == STATE_GRABBING:
                 img_name = "output/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
                 img_raw_name = "output_raw/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
@@ -91,7 +93,6 @@ class ImageProcessor:
                 if img_counter == grabber_target:
                     break
             else:
-                k = cv2.waitKey(1)
 
                 if k % 256 == 27:  # ESC
                     print("Escape hit, closing...")
