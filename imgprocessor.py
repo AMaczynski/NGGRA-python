@@ -42,7 +42,10 @@ class ImageProcessor:
     def start_tensorflow_analyser(self, target_algorithm, detector, display = False):
         self.classifier = Classifier()
         while True:
-            processed_image = self.get_processed_image(target_algorithm)
+            ret, frame = self.cam.read()
+            if not ret:
+                break
+            processed_image = self.get_processed_image(frame, target_algorithm)
             if processed_image is None:
                 break
             results = self.classifier.label_image(processed_image)
@@ -61,7 +64,7 @@ class ImageProcessor:
         self.cam.release()
         cv2.destroyAllWindows()
 
-    def start_grabber(self, target_algorithm, file_name, grabber_target, grabber_delay, start_number):
+    def start_grabber(self, target_algorithm, file_name, grabber_target, grabber_delay, start_number, grab_test = False):
         grabber_state = STATE_WAITING
         img_counter = 0
         while True:
@@ -75,18 +78,22 @@ class ImageProcessor:
             k = cv2.waitKey(1)
 
             if grabber_state == STATE_GRABBING:
-                img_name = "output/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
-                img_raw_name = "output_raw/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
-                img_cropped_name = "output_cropped/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
+                if grab_test:
+                    img_name = "test/test_%s_%d.jpg" % (file_name, start_number + img_counter)
+                    cv2.imwrite(img_name, processed_image)
+                else:
+                    img_name = "output/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
+                    img_raw_name = "output_raw/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
+                    img_cropped_name = "output_cropped/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
 
-                contours = get_largest_contour(processed_image)
-                if contours is not None:
-                    x, y, w, h = contours
-                    cropped_img = processed_image[y:y + h, x:x + w]
-                    cv2.imwrite(img_cropped_name, cropped_img)
+                    contours = get_largest_contour(processed_image)
+                    if contours is not None:
+                        x, y, w, h = contours
+                        cropped_img = processed_image[y:y + h, x:x + w]
+                        cv2.imwrite(img_cropped_name, cropped_img)
 
-                cv2.imwrite(img_raw_name, frame)
-                cv2.imwrite(img_name, processed_image)
+                    cv2.imwrite(img_raw_name, frame)
+                    cv2.imwrite(img_name, processed_image)
                 print("{} written!".format(img_name))
                 img_counter += 1
                 sleep(grabber_delay)
