@@ -120,5 +120,7 @@ class ImageProcessor:
         elif target_algorithm == ALGO_ADV:
             processed_image = advanced_algorithm(scaled_img)
 
+        processed_image = cv2.cvtColor(processed_image, cv2.COLOR_GRAY2BGR)
+
         return processed_image
 

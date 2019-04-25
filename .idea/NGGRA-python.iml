@@ -4,6 +4,8 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/output" />
       <excludeFolder url="file://$MODULE_DIR$/output_cropped" />
+      <excludeFolder url="file://$MODULE_DIR$/output_cropped_gray" />
+      <excludeFolder url="file://$MODULE_DIR$/output_gray" />
       <excludeFolder url="file://$MODULE_DIR$/output_raw" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.5 (NGGRA-python)" jdkType="Python SDK" />

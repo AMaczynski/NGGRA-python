@@ -72,8 +72,6 @@ class Classifier:
 
     def label_image(self, frame):
         # Format for the Mul:0 Tensor
-        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-
         frame = cv2.resize(frame, dsize=(299, 299))
         # Numpy array
         np_image_data = np.asarray(frame)
