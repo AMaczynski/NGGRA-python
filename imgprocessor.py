@@ -86,7 +86,8 @@ class ImageProcessor:
                     img_raw_name = "output_raw/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
                     img_cropped_name = "output_cropped/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
 
-                    contours = get_largest_contour(processed_image)
+                    gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
+                    contours = get_largest_contour(gray_image)
                     if contours is not None:
                         x, y, w, h = contours
                         cropped_img = processed_image[y:y + h, x:x + w]
