@@ -6,7 +6,7 @@ import os
 if __name__ == '__main__':
     classifier = Classifier()
     f = open("validation.txt", "w")
-    path = "output/test"
+    path = "test"
     images = os.listdir(path)
 
     for image in images:
