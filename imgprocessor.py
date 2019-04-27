@@ -64,6 +64,46 @@ class ImageProcessor:
         self.cam.release()
         cv2.destroyAllWindows()
 
+    def follow_center(self, target_algorithm):
+        while True:
+            ret, frame = self.cam.read()
+            if not ret:
+                break
+            processed_image = self.get_processed_image(frame, target_algorithm)
+            if processed_image is None:
+                break
+
+            gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
+            ret, thresh = cv2.threshold(gray_image, 127, 255, 0)
+
+            moments = cv2.moments(thresh)
+
+            cX = 0
+            cY = 0
+
+            if moments["m00"] != 0:
+                cX = int(moments["m10"] / moments["m00"])
+                cY = int(moments["m01"] / moments["m00"])
+
+            # print("cX: " + format(cX))
+            # print("cY: " + format(cY))
+
+            for i in range(-4, 4):
+                for j in range(-4, 4):
+                    processed_image[cY + i][cX + j][0] = 66
+                    processed_image[cY + i][cX + j][1] = 66
+                    processed_image[cY + i][cX + j][2] = 244
+
+            cv2.imshow("Show by CV2", processed_image)
+
+            k = cv2.waitKey(1)
+            if k % 256 == 27:  # ESC
+                print("Escape hit, closing...")
+                break
+
+        self.cam.release()
+        cv2.destroyAllWindows()
+
     def start_grabber(self, target_algorithm, file_name, grabber_target, grabber_delay, start_number, grab_test = False):
         grabber_state = STATE_WAITING
         img_counter = 0

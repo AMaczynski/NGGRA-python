@@ -1,22 +1,31 @@
-import cv2 as cv
-import numpy as np
-cap = cv.VideoCapture(0)
-while(1):
-    # Take each frame
-    _, frame = cap.read()
-    # Convert BGR to HSV
-    hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-    # define range of blue color in HSV
-    lower_blue = np.array([80,100,140])
-    upper_blue = np.array([110,255,255])
-    # Threshold the HSV image to get only blue colors
-    mask = cv.inRange(hsv, lower_blue, upper_blue)
-    # Bitwise-AND mask and original image
-    res = cv.bitwise_and(frame,frame, mask= mask)
-    cv.imshow('frame',frame)
-    cv.imshow('mask',mask)
-    cv.imshow('res',res)
-    k = cv.waitKey(5) & 0xFF
-    if k == 27:
-        break
-cv.destroyAllWindows()
+import os
+
+import cv2
+
+from imgprocessor import ImageProcessor
+
+ALGO_SIMPLE = 0
+ALGO_ADV = 1
+
+algorithm = ALGO_SIMPLE
+capture_name = "none"
+images_to_capture = 10
+capture_delay = 0.5
+
+save_raw = True
+save_bin = True
+save_cropped_bin = True
+grab_test = True
+
+if __name__ == '__main__':
+    cam = cv2.VideoCapture(0)
+    # ImageProcessor(cam reference, image scale)
+    ip = ImageProcessor(cam, 0.5)
+    start_number = 0
+
+    custom_hsv_ranges = ((80, 110),  # H
+                         (100, 255),  # S
+                         (140, 255))  # V
+
+    ip.redefine_simple_algorithm(custom_hsv_ranges)
+    ip.follow_center(ALGO_SIMPLE)
