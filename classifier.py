@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 import cv2
-
 import numpy as np
 import tensorflow as tf
 
@@ -55,12 +54,12 @@ class Classifier:
         else:
             image_reader = tf.image.decode_jpeg(
                 file_reader, channels=3, name="jpeg_reader")
-            float_caster = tf.cast(image_reader, tf.float32)
-            dims_expander = tf.expand_dims(float_caster, 0)
-            resized = tf.image.resize_bilinear(dims_expander, [input_height, input_width])
-            normalized = tf.divide(tf.subtract(resized, [input_mean]), [input_std])
-            sess = tf.Session()
-            result = sess.run(normalized)
+        float_caster = tf.cast(image_reader, tf.float32)
+        dims_expander = tf.expand_dims(float_caster, 0)
+        resized = tf.image.resize_bilinear(dims_expander, [input_height, input_width])
+        normalized = tf.divide(tf.subtract(resized, [input_mean]), [input_std])
+        sess = tf.Session()
+        result = sess.run(normalized)
 
         return result
 
@@ -73,8 +72,6 @@ class Classifier:
 
     def label_image(self, frame):
         # Format for the Mul:0 Tensor
-        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-
         frame = cv2.resize(frame, dsize=(299, 299))
         # Numpy array
         np_image_data = np.asarray(frame)
@@ -98,7 +95,7 @@ class Classifier:
             tops.append((self.labels[i], results[i]))
         return tops
 
-def label_image_from_file(self, file_path):
+    def label_image_from_file(self, file_path):
         input_height = 299
         input_width = 299
         input_mean = 0
