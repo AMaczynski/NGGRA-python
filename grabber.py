@@ -8,14 +8,14 @@ ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
 algorithm = ALGO_SIMPLE
-capture_name = "none"
-images_to_capture = 10
-capture_delay = 0.5
+capture_name = "thumb"
+images_to_capture = 1000
+capture_delay = 0.01
 
 save_raw = True
 save_bin = True
 save_cropped_bin = True
-grab_test = True
+grab_test = False
 
 if __name__ == '__main__':
     cam = cv2.VideoCapture(0)
