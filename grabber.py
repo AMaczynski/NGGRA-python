@@ -37,13 +37,6 @@ if __name__ == '__main__':
         dir_path = "output/%s" % capture_name
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        dir_path = "output_cropped/%s" % capture_name
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-
-        dir_path = "output_raw/%s" % capture_name
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
         else:
             files = os.listdir(dir_path)
             for file in files:
@@ -51,6 +44,14 @@ if __name__ == '__main__':
                 if number > start_number:
                     start_number = number
             start_number += 1
+        dir_path = "output_cropped/%s" % capture_name
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
+        dir_path = "output_raw/%s" % capture_name
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
 
     if algorithm is ALGO_SIMPLE:
         # custom_hsv_ranges = ((20, 50), # H
