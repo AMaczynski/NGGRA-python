@@ -23,6 +23,7 @@ class Classifier:
         self.output_operation = self.graph.get_operation_by_name(output_name)
 
         self.sess = tf.Session(graph=self.graph)
+        self.sess_ng = tf.Session()
 
     def load_graph(self, model_file):
         graph = tf.Graph()
@@ -41,7 +42,6 @@ class Classifier:
                                     input_mean=0,
                                     input_std=255):
         input_name = "file_reader"
-        output_name = "normalized"
         file_reader = tf.read_file(file_name, input_name)
         if file_name.endswith(".png"):
             image_reader = tf.image.decode_png(
@@ -58,9 +58,7 @@ class Classifier:
         dims_expander = tf.expand_dims(float_caster, 0)
         resized = tf.image.resize_bilinear(dims_expander, [input_height, input_width])
         normalized = tf.divide(tf.subtract(resized, [input_mean]), [input_std])
-        sess = tf.Session()
-        result = sess.run(normalized)
-
+        result = self.sess_ng.run(normalized)
         return result
 
     def load_labels(self, label_file):
@@ -71,21 +69,14 @@ class Classifier:
         return label
 
     def label_image(self, frame):
-        # Format for the Mul:0 Tensor
-        frame = cv2.resize(frame, dsize=(299, 299))
-        # Numpy array
-        np_image_data = np.asarray(frame)
-        np_image_data = cv2.normalize(np_image_data.astype('float'), None, -0.5, .5, cv2.NORM_MINMAX)
-        # maybe insert float convertion here - see edit remark!
-        np_final = np.expand_dims(np_image_data, axis=0)
-        # softmax_tensor = self.sess.graph.get_tensor_by_name('final_result:0')
+        float_caster = tf.cast(frame, tf.float32)
+        dims_expander = tf.expand_dims(float_caster, 0)
+        resized = tf.image.resize_bilinear(dims_expander, [299, 299])
+        normalized = tf.divide(tf.subtract(resized, [0]), [255])
+        t = self.sess_ng.run(normalized)
 
-        # now feeding it into the session:
-        # [... initialization of session and loading of graph etc]
-        # results = self.sess.run(softmax_tensor,
-        #                        {'Mul:0': np_final})
         results = self.sess.run(self.output_operation.outputs[0], {
-            self.input_operation.outputs[0]: np_final
+            self.input_operation.outputs[0]: t
         })
         results = np.squeeze(results)
         top_k = results.argsort()[-5:][::-1]
