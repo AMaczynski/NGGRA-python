@@ -9,6 +9,8 @@ from classifier import Classifier
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
+COLOR_RED = (66, 66, 244)
+
 STATE_WAITING = 0
 STATE_GRABBING = 1
 
@@ -60,6 +62,74 @@ class ImageProcessor:
                 if k % 256 == 27:  # ESC
                     print("Escape hit, closing...")
                     break
+
+        self.cam.release()
+        cv2.destroyAllWindows()
+
+    def follow_center(self, target_algorithm):
+        even = True
+        start = False
+        cX1 = 0
+        cX2 = 0
+        cY1 = 0
+        cY2 = 0
+
+        while True:
+            ret, frame = self.cam.read()
+            if not ret:
+                break
+            processed_image = self.get_processed_image(frame, target_algorithm)
+            if processed_image is None:
+                break
+
+            gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
+            ret, thresh = cv2.threshold(gray_image, 127, 255, 0)
+            moments = cv2.moments(thresh)
+
+            if moments["m00"] != 0:
+                if even:
+                    cX1 = int(moments["m10"] / moments["m00"])
+                    cY1 = int(moments["m01"] / moments["m00"])
+                else:
+                    cX2 = int(moments["m10"] / moments["m00"])
+                    cY2 = int(moments["m01"] / moments["m00"])
+
+            if even:
+                cX_actual = cX1
+                cY_actual = cY1
+                cX_prev = cX2
+                cY_prev = cY2
+            else:
+                cX_actual = cX2
+                cY_actual = cY2
+                cX_prev = cX1
+                cY_prev = cY1
+
+            if start:
+                if cX_actual - cX_prev > 5:
+                    print("Right move")
+                if cX_prev - cX_actual > 5:
+                    print("Left move")
+                if cY_actual - cY_prev > 5:
+                    print("Down move")
+                if cY_prev - cY_actual > 5:
+                    print("Up move")
+
+            start = True
+            even = not even
+
+            for i in range(-4, 5):
+                processed_image[cY_actual + i][cX_actual] = COLOR_RED
+            for j in range(-4, 5):
+                processed_image[cY_actual][cX_actual + j] = COLOR_RED
+
+            cv2.imshow("Show by CV2", processed_image)
+
+            k = cv2.waitKey(1)
+            if k % 256 == 27:  # ESC
+                print("Escape hit, closing...")
+                break
+
 
         self.cam.release()
         cv2.destroyAllWindows()
