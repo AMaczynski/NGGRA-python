@@ -106,3 +106,10 @@ venv.bak/
 
 #intellij
 .idea/
+
+# captured images
+output/
+output_cropped/
+output_cropped_gray/
+output_gray/
+output_raw/
