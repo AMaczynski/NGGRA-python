@@ -9,6 +9,8 @@ from classifier import Classifier
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
+COLOR_RED = (66, 66, 244)
+
 STATE_WAITING = 0
 STATE_GRABBING = 1
 
@@ -65,9 +67,14 @@ class ImageProcessor:
         cv2.destroyAllWindows()
 
     def follow_center(self, target_algorithm):
-
         counter = 0
-        array = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+        even = True
+        cX1 = 0
+        cX2 = 0
+        cY1 = 0
+        cY2 = 0
+        cX_actual = 0
+        cY_actual = 0
 
         while True:
             ret, frame = self.cam.read()
@@ -79,47 +86,52 @@ class ImageProcessor:
 
             gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
             ret, thresh = cv2.threshold(gray_image, 127, 255, 0)
-
             moments = cv2.moments(thresh)
 
-            cX = 0
-            cY = 0
-
             if moments["m00"] != 0:
-                cX = int(moments["m10"] / moments["m00"])
-                cY = int(moments["m01"] / moments["m00"])
+                if even:
+                    cX1 = int(moments["m10"] / moments["m00"])
+                    cY1 = int(moments["m01"] / moments["m00"])
+                else:
+                    cX2 = int(moments["m10"] / moments["m00"])
+                    cY2 = int(moments["m01"] / moments["m00"])
 
             if counter % 10 == 0:
-                array[int(counter / 10)][0] = cX
-                array[int(counter / 10)][1] = cY
-                print("cX: " + format(cX))
-                print("cY: " + format(cY))
+                if even:
+                    cX_actual = cX1
+                    cY_actual = cY1
+                    cX_prev = cX2
+                    cY_prev = cY2
+                else:
+                    cX_actual = cX2
+                    cY_actual = cY2
+                    cX_prev = cX1
+                    cY_prev = cY1
 
-                if counter != 0 and array[int(counter / 10)][0] - array[int(counter / 10) - 1][0] > 5:
-                    print("Right move")
+                # print("cX1: " + format(cX1))
+                # print("cX2: " + format(cX2))
+                # print("cY1: " + format(cY1))
+                # print("cY2: " + format(cY2))
 
-                if counter != 0 and array[int(counter / 10)][0] - array[int(counter / 10) - 1][0] < -5:
-                    print("Left move")
-
-                if counter != 0 and array[int(counter / 10)][1] - array[int(counter / 10) - 1][1] > 5:
-                    print("Down move")
-
-                if counter != 0 and array[int(counter / 10)][1] - array[int(counter / 10) - 1][1] < -5:
-                    print("Up move")
+                if counter != 0:
+                    if cX_actual - cX_prev > 5:
+                        print("Right move")
+                    if cX_prev - cX_actual > 5:
+                        print("Left move")
+                    if cY_actual - cY_prev > 5:
+                        print("Down move")
+                    if cY_prev - cY_actual > 5:
+                        print("Up move")
+                even = not even
 
             counter = counter + 1
             if counter == 100:
                 counter = 0
 
             for i in range(-4, 5):
-                processed_image[cY + i][cX]= COLOR_BLUE
-                processed_image[cY + i][cX][1] = 66
-                processed_image[cY + i][cX][2] = 244
-
+                processed_image[cY_actual + i][cX_actual] = COLOR_RED
             for j in range(-4, 5):
-                processed_image[cY][cX + j][0] = 66
-                processed_image[cY][cX + j][1] = 66
-                processed_image[cY][cX + j][2] = 244
+                processed_image[cY_actual][cX_actual + j] = COLOR_RED
 
             cv2.imshow("Show by CV2", processed_image)
 
