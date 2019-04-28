@@ -112,7 +112,7 @@ class ImageProcessor:
                 counter = 0
 
             for i in range(-4, 5):
-                processed_image[cY + i][cX][0] = 66
+                processed_image[cY + i][cX]= COLOR_BLUE
                 processed_image[cY + i][cX][1] = 66
                 processed_image[cY + i][cX][2] = 244
 
