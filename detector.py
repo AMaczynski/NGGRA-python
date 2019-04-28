@@ -12,6 +12,7 @@ debug_display = True
 class Detector:
     def __init__(self):
         cam = cv2.VideoCapture(0)
+        cam.set(cv2.CAP_PROP_FPS, 5)
         # ImageProcessor(cam reference, image scale)
         self.ip = ImageProcessor(cam, 0.5)
 
