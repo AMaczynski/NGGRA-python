@@ -67,14 +67,12 @@ class ImageProcessor:
         cv2.destroyAllWindows()
 
     def follow_center(self, target_algorithm):
-        counter = 0
         even = True
+        start = False
         cX1 = 0
         cX2 = 0
         cY1 = 0
         cY2 = 0
-        cX_actual = 0
-        cY_actual = 0
 
         while True:
             ret, frame = self.cam.read()
@@ -96,37 +94,29 @@ class ImageProcessor:
                     cX2 = int(moments["m10"] / moments["m00"])
                     cY2 = int(moments["m01"] / moments["m00"])
 
-            if counter % 10 == 0:
-                if even:
-                    cX_actual = cX1
-                    cY_actual = cY1
-                    cX_prev = cX2
-                    cY_prev = cY2
-                else:
-                    cX_actual = cX2
-                    cY_actual = cY2
-                    cX_prev = cX1
-                    cY_prev = cY1
+            if even:
+                cX_actual = cX1
+                cY_actual = cY1
+                cX_prev = cX2
+                cY_prev = cY2
+            else:
+                cX_actual = cX2
+                cY_actual = cY2
+                cX_prev = cX1
+                cY_prev = cY1
 
-                # print("cX1: " + format(cX1))
-                # print("cX2: " + format(cX2))
-                # print("cY1: " + format(cY1))
-                # print("cY2: " + format(cY2))
+            if start:
+                if cX_actual - cX_prev > 5:
+                    print("Right move")
+                if cX_prev - cX_actual > 5:
+                    print("Left move")
+                if cY_actual - cY_prev > 5:
+                    print("Down move")
+                if cY_prev - cY_actual > 5:
+                    print("Up move")
 
-                if counter != 0:
-                    if cX_actual - cX_prev > 5:
-                        print("Right move")
-                    if cX_prev - cX_actual > 5:
-                        print("Left move")
-                    if cY_actual - cY_prev > 5:
-                        print("Down move")
-                    if cY_prev - cY_actual > 5:
-                        print("Up move")
-                even = not even
-
-            counter = counter + 1
-            if counter == 100:
-                counter = 0
+            start = True
+            even = not even
 
             for i in range(-4, 5):
                 processed_image[cY_actual + i][cX_actual] = COLOR_RED
@@ -139,6 +129,7 @@ class ImageProcessor:
             if k % 256 == 27:  # ESC
                 print("Escape hit, closing...")
                 break
+
 
         self.cam.release()
         cv2.destroyAllWindows()
