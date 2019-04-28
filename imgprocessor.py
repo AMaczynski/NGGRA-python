@@ -65,6 +65,10 @@ class ImageProcessor:
         cv2.destroyAllWindows()
 
     def follow_center(self, target_algorithm):
+
+        counter = 0
+        array = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+
         while True:
             ret, frame = self.cam.read()
             if not ret:
@@ -85,14 +89,37 @@ class ImageProcessor:
                 cX = int(moments["m10"] / moments["m00"])
                 cY = int(moments["m01"] / moments["m00"])
 
-            # print("cX: " + format(cX))
-            # print("cY: " + format(cY))
+            if counter % 10 == 0:
+                array[int(counter / 10)][0] = cX
+                array[int(counter / 10)][1] = cY
+                print("cX: " + format(cX))
+                print("cY: " + format(cY))
 
-            for i in range(-4, 4):
-                for j in range(-4, 4):
-                    processed_image[cY + i][cX + j][0] = 66
-                    processed_image[cY + i][cX + j][1] = 66
-                    processed_image[cY + i][cX + j][2] = 244
+                if counter != 0 and array[int(counter / 10)][0] - array[int(counter / 10) - 1][0] > 5:
+                    print("Right move")
+
+                if counter != 0 and array[int(counter / 10)][0] - array[int(counter / 10) - 1][0] < -5:
+                    print("Left move")
+
+                if counter != 0 and array[int(counter / 10)][1] - array[int(counter / 10) - 1][1] > 5:
+                    print("Down move")
+
+                if counter != 0 and array[int(counter / 10)][1] - array[int(counter / 10) - 1][1] < -5:
+                    print("Up move")
+
+            counter = counter + 1
+            if counter == 100:
+                counter = 0
+
+            for i in range(-4, 5):
+                processed_image[cY + i][cX][0] = 66
+                processed_image[cY + i][cX][1] = 66
+                processed_image[cY + i][cX][2] = 244
+
+            for j in range(-4, 5):
+                processed_image[cY][cX + j][0] = 66
+                processed_image[cY][cX + j][1] = 66
+                processed_image[cY][cX + j][2] = 244
 
             cv2.imshow("Show by CV2", processed_image)
 
