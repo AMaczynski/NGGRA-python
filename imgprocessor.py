@@ -9,6 +9,11 @@ from classifier import Classifier
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
+RIGHT = 1
+LEFT = 2
+UP = 3
+DOWN = 4
+
 COLOR_RED = (66, 66, 244)
 
 STATE_WAITING = 0
@@ -41,32 +46,8 @@ class ImageProcessor:
     def redefine_simple_algorithm(self, hsv_ranges):
         self.custom_simple_ranges = hsv_ranges
 
-    def start_tensorflow_analyser(self, target_algorithm, detector, display = False):
+    def start_loop(self, target_algorithm, detector, display=False):
         self.classifier = Classifier()
-        while True:
-            ret, frame = self.cam.read()
-            if not ret:
-                break
-            processed_image = self.get_processed_image(frame, target_algorithm)
-            if processed_image is None:
-                break
-            results = self.classifier.label_image(processed_image)
-            print(results)
-            if results[0][1] > 0.7:
-                detector.on_gesture(results[0][0])
-            else:
-                detector.on_gesture(None)
-            if display:
-                cv2.imshow("Show by CV2", processed_image)
-                k = cv2.waitKey(1)
-                if k % 256 == 27:  # ESC
-                    print("Escape hit, closing...")
-                    break
-
-        self.cam.release()
-        cv2.destroyAllWindows()
-
-    def follow_center(self, target_algorithm):
         even = True
         start = False
         cX1 = 0
@@ -82,6 +63,28 @@ class ImageProcessor:
             if processed_image is None:
                 break
 
+            results = self.start_tensorflow_analyser(processed_image, detector)
+            direction, cX1, cX2, cY1, cY2 = self.follow_center(processed_image, even, start, cX1, cX2, cY1, cY2)
+
+            print(results)
+            print(direction)
+
+            start = True
+            even = not even
+
+            if display:
+                cv2.imshow("Show by CV2", processed_image)
+                k = cv2.waitKey(1)
+                if k % 256 == 27:  # ESC
+                    print("Escape hit, closing...")
+                    break
+        self.cam.release()
+        cv2.destroyAllWindows()
+
+    def start_tensorflow_analyser(self, processed_image, detector):
+        return self.classifier.label_image(processed_image)
+
+    def follow_center(self, processed_image, even, start, cX1, cX2, cY1, cY2):
             gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
             ret, thresh = cv2.threshold(gray_image, 127, 255, 0)
             moments = cv2.moments(thresh)
@@ -105,34 +108,23 @@ class ImageProcessor:
                 cX_prev = cX1
                 cY_prev = cY1
 
-            if start:
-                if cX_actual - cX_prev > 5:
-                    print("Right move")
-                if cX_prev - cX_actual > 5:
-                    print("Left move")
-                if cY_actual - cY_prev > 5:
-                    print("Down move")
-                if cY_prev - cY_actual > 5:
-                    print("Up move")
-
-            start = True
-            even = not even
-
             for i in range(-4, 5):
                 processed_image[cY_actual + i][cX_actual] = COLOR_RED
             for j in range(-4, 5):
                 processed_image[cY_actual][cX_actual + j] = COLOR_RED
 
-            cv2.imshow("Show by CV2", processed_image)
+            if start:
+                print(even)
+                if cX_actual - cX_prev > 5:
+                    return RIGHT, cX1, cX2, cY1, cY2
+                if cX_prev - cX_actual > 5:
+                    return LEFT, cX1, cX2, cY1, cY2
+                if cY_actual - cY_prev > 5:
+                    return DOWN, cX1, cX2, cY1, cY2
+                if cY_prev - cY_actual > 5:
+                    return UP, cX1, cX2, cY1, cY2
 
-            k = cv2.waitKey(1)
-            if k % 256 == 27:  # ESC
-                print("Escape hit, closing...")
-                break
-
-
-        self.cam.release()
-        cv2.destroyAllWindows()
+            return None, cX1, cX2, cY1, cY2
 
     def start_grabber(self, target_algorithm, file_name, grabber_target, grabber_delay, start_number, grab_test = False):
         grabber_state = STATE_WAITING

@@ -17,7 +17,7 @@ class Detector:
         self.ip = ImageProcessor(cam, 0.5)
 
     def start(self):
-        self.ip.start_tensorflow_analyser(ALGO_SIMPLE, self, display=debug_display)
+        self.ip.start_loop(ALGO_SIMPLE, self, display=debug_display)
 
     def on_gesture(self, gesture):
         if gesture == "fist":
