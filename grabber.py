@@ -20,7 +20,7 @@ grab_test = False
 if __name__ == '__main__':
     cam = cv2.VideoCapture(0)
     # ImageProcessor(cam reference, image scale)
-    ip = ImageProcessor(cam, 0.5)
+    ip = ImageProcessor(cam, 0.5,False)
     start_number = 0
     if grab_test:
         dir_path = "test"

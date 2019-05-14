@@ -1,5 +1,7 @@
+import math
 import os
 from time import sleep
+import pyautogui
 
 import cv2
 
@@ -38,10 +40,11 @@ def get_largest_contour(frame):
 
 
 class ImageProcessor:
-    def __init__(self, cam, target_scale):
+    def __init__(self, cam, target_scale, mouse_control):
         self.cam = cam
         self.target_scale = target_scale
         self.custom_simple_ranges = None
+        self.mouse_control = mouse_control
 
     def redefine_simple_algorithm(self, hsv_ranges):
         self.custom_simple_ranges = hsv_ranges
@@ -66,6 +69,18 @@ class ImageProcessor:
             results = self.start_tensorflow_analyser(processed_image, detector)
             direction, cX1, cX2, cY1, cY2 = self.follow_center(processed_image, even, start, cX1, cX2, cY1, cY2)
 
+            if self.mouse_control:
+                x_image_size = processed_image.shape[1]
+                y_image_size = processed_image.shape[0]
+
+                if even:
+                    x,y = self.move_mouse(cX1, cY1, x_image_size, y_image_size)
+                else:
+                    x,y = self.move_mouse(cX2, cY2, x_image_size, y_image_size)
+
+                if results[0][1]>0.65 and results[0][0]=='fist':
+                    self.mouse_click(x,y)
+
             print(results)
             print(direction)
 
@@ -85,48 +100,48 @@ class ImageProcessor:
         return self.classifier.label_image(processed_image)
 
     def follow_center(self, processed_image, even, start, cX1, cX2, cY1, cY2):
-            gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
-            ret, thresh = cv2.threshold(gray_image, 127, 255, 0)
-            moments = cv2.moments(thresh)
+        gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
+        ret, thresh = cv2.threshold(gray_image, 127, 255, 0)
+        moments = cv2.moments(thresh)
 
-            if moments["m00"] != 0:
-                if even:
-                    cX1 = int(moments["m10"] / moments["m00"])
-                    cY1 = int(moments["m01"] / moments["m00"])
-                else:
-                    cX2 = int(moments["m10"] / moments["m00"])
-                    cY2 = int(moments["m01"] / moments["m00"])
-
+        if moments["m00"] != 0:
             if even:
-                cX_actual = cX1
-                cY_actual = cY1
-                cX_prev = cX2
-                cY_prev = cY2
+                cX1 = int(moments["m10"] / moments["m00"])
+                cY1 = int(moments["m01"] / moments["m00"])
             else:
-                cX_actual = cX2
-                cY_actual = cY2
-                cX_prev = cX1
-                cY_prev = cY1
+                cX2 = int(moments["m10"] / moments["m00"])
+                cY2 = int(moments["m01"] / moments["m00"])
 
-            for i in range(-4, 5):
-                processed_image[cY_actual + i][cX_actual] = COLOR_RED
-            for j in range(-4, 5):
-                processed_image[cY_actual][cX_actual + j] = COLOR_RED
+        if even:
+            cX_actual = cX1
+            cY_actual = cY1
+            cX_prev = cX2
+            cY_prev = cY2
+        else:
+            cX_actual = cX2
+            cY_actual = cY2
+            cX_prev = cX1
+            cY_prev = cY1
 
-            if start:
-                print(even)
-                if cX_actual - cX_prev > 5:
-                    return RIGHT, cX1, cX2, cY1, cY2
-                if cX_prev - cX_actual > 5:
-                    return LEFT, cX1, cX2, cY1, cY2
-                if cY_actual - cY_prev > 5:
-                    return DOWN, cX1, cX2, cY1, cY2
-                if cY_prev - cY_actual > 5:
-                    return UP, cX1, cX2, cY1, cY2
+        for i in range(-4, 5):
+            processed_image[cY_actual + i][cX_actual] = COLOR_RED
+        for j in range(-4, 5):
+            processed_image[cY_actual][cX_actual + j] = COLOR_RED
 
-            return None, cX1, cX2, cY1, cY2
+        if start:
+            print(even)
+            if cX_actual - cX_prev > 5:
+                return RIGHT, cX1, cX2, cY1, cY2
+            if cX_prev - cX_actual > 5:
+                return LEFT, cX1, cX2, cY1, cY2
+            if cY_actual - cY_prev > 5:
+                return DOWN, cX1, cX2, cY1, cY2
+            if cY_prev - cY_actual > 5:
+                return UP, cX1, cX2, cY1, cY2
 
-    def start_grabber(self, target_algorithm, file_name, grabber_target, grabber_delay, start_number, grab_test = False):
+        return None, cX1, cX2, cY1, cY2
+
+    def start_grabber(self, target_algorithm, file_name, grabber_target, grabber_delay, start_number, grab_test=False):
         grabber_state = STATE_WAITING
         img_counter = 0
         while True:
@@ -146,7 +161,8 @@ class ImageProcessor:
                 else:
                     img_name = "output/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
                     img_raw_name = "output_raw/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
-                    img_cropped_name = "output_cropped/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
+                    img_cropped_name = "output_cropped/%s/%s_%d.jpg" % (
+                    file_name, file_name, start_number + img_counter)
 
                     gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
                     contours = get_largest_contour(gray_image)
@@ -187,3 +203,16 @@ class ImageProcessor:
 
         return processed_image
 
+    def move_mouse(self, x, y, x_max, y_max):
+        x_screen, y_screen = pyautogui.size()
+
+        #tutaj usuwamy efekt odbicia lustrzanego
+        x_value=x_screen-(x * math.floor(x_screen / x_max))
+        y_value = y * math.floor(y_screen / y_max)
+
+        pyautogui.moveTo(x_value,y_value)
+
+        return x_value,y_value
+
+    def mouse_click(self,x,y):
+        pyautogui.click(x, y)

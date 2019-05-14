@@ -6,6 +6,7 @@ ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
 debug_display = True
+mouse_control = True
 
 # model goes to model/output_graph.pb
 # labels model/output_labels.txt
@@ -14,7 +15,7 @@ class Detector:
         cam = cv2.VideoCapture(0)
         cam.set(cv2.CAP_PROP_FPS, 5)
         # ImageProcessor(cam reference, image scale)
-        self.ip = ImageProcessor(cam, 0.5)
+        self.ip = ImageProcessor(cam, 0.5, mouse_control)
 
     def start(self):
         self.ip.start_loop(ALGO_SIMPLE, self, display=debug_display)
