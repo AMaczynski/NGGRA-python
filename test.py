@@ -2,7 +2,7 @@ import os
 
 import cv2
 
-from imgprocessor import ImageProcessor
+from imgprocessor import ImageProcessor, follow_center
 
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
@@ -28,4 +28,4 @@ if __name__ == '__main__':
                          (140, 255))  # V
 
     ip.redefine_simple_algorithm(custom_hsv_ranges)
-    ip.follow_center(ALGO_SIMPLE)
+    # follow_center(ALGO_SIMPLE)
