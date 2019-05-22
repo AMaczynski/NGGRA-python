@@ -118,14 +118,13 @@ def follow_center(processed_image, even, start, cX1, cX2, cY1, cY2):
 
 
 class ImageProcessor:
-    wait_complete = True
-
     def __init__(self, cam, target_scale, mouse_control):
         self.classifier = Classifier()
         self.cam = cam
         self.target_scale = target_scale
         self.custom_simple_ranges = None
         self.mouse_control = mouse_control
+        self.wait_complete = True
 
     # czekanie żeby nie spamowało akcjami cały czas
     # jeden gest na 3 sekundy - jedna akcja
@@ -186,34 +185,7 @@ class ImageProcessor:
             results = self.start_tensorflow_analyser(processed_image)
             direction, cX1, cX2, cY1, cY2 = follow_center(processed_image, even, start, cX1, cX2, cY1, cY2)
 
-            if self.mouse_control:
-                x_image_size = processed_image.shape[1]
-                x, y = pyautogui.position()
-
-                if results[0][1] > 0.8 and results[0][0] == 'palm':
-                    if even:
-                        x_diff = cX1 - cX2
-                        y_diff = cY1 - cY2
-                        x, y = move_mouse2(x_diff, y_diff, x_image_size)
-                    else:
-                        x_diff = cX2 - cX1
-                        y_diff = cY2 - cY1
-                        x, y = move_mouse2(x_diff, y_diff, x_image_size)
-
-                if results[0][1] > 0.65 and results[0][0] == 'fist':
-                    mouse_click(x, y)
-
-                # thumb - wyciszenie
-                if results[0][1] > 0.65 and results[0][0] == 'thumb':
-                    self.mute()
-
-                # peace - następny utwór
-                if results[0][1] > 0.65 and results[0][0] == 'peace':
-                    self.next_track()
-
-                # straight - play/pause
-                if results[0][1] > 0.65 and results[0][0] == 'straight':
-                    self.play()
+            self.controls(cX1, cX2, cY1, cY2, even, processed_image, results)
 
             print(results)
             print(direction)
@@ -229,6 +201,33 @@ class ImageProcessor:
                     break
         self.cam.release()
         cv2.destroyAllWindows()
+
+    def controls(self, cX1, cX2, cY1, cY2, even, processed_image, results):
+        if self.mouse_control:
+            x_image_size = processed_image.shape[1]
+            x, y = pyautogui.position()
+
+            if results[0][1] > 0.8 and results[0][0] == 'palm':
+                if even:
+                    x_diff = cX1 - cX2
+                    y_diff = cY1 - cY2
+                    x, y = move_mouse2(x_diff, y_diff, x_image_size)
+                else:
+                    x_diff = cX2 - cX1
+                    y_diff = cY2 - cY1
+                    x, y = move_mouse2(x_diff, y_diff, x_image_size)
+
+            if results[0][1] > 0.65 and results[0][0] == 'fist':
+                mouse_click(x, y)
+        # thumb - wyciszenie
+        if results[0][1] > 0.65 and results[0][0] == 'thumb':
+            self.mute()
+        # peace - następny utwór
+        if results[0][1] > 0.65 and results[0][0] == 'peace':
+            self.next_track()
+        # straight - play/pause
+        if results[0][1] > 0.65 and results[0][0] == 'straight':
+            self.play()
 
     def start_tensorflow_analyser(self, processed_image):
         return self.classifier.label_image(processed_image)
