@@ -1,5 +1,6 @@
 import math
 import os
+import threading
 from time import sleep
 import pyautogui
 
@@ -117,12 +118,51 @@ def follow_center(processed_image, even, start, cX1, cX2, cY1, cY2):
 
 
 class ImageProcessor:
+    wait_complete = True
+
     def __init__(self, cam, target_scale, mouse_control):
         self.classifier = Classifier()
         self.cam = cam
         self.target_scale = target_scale
         self.custom_simple_ranges = None
         self.mouse_control = mouse_control
+
+    # czekanie żeby nie spamowało akcjami cały czas
+    # jeden gest na 3 sekundy - jedna akcja
+    # żeby użytkownik zdążył zabrać rękę/zmienić gest
+    def end_wait(self):
+        self.wait_complete = True
+        print("wait over")
+
+    def play(self):
+        if self.wait_complete:
+            pyautogui.press("playpause")
+            print("PLAY/PAUSE")
+            self.wait_complete = False
+            timer = threading.Timer(3.0, self.end_wait)
+            timer.start()
+        else:
+            print("wait not over")
+
+    def next_track(self):
+        if self.wait_complete:
+            pyautogui.press("nexttrack")
+            print("NEXT TRACK")
+            self.wait_complete = False
+            timer = threading.Timer(3.0, self.end_wait)
+            timer.start()
+        else:
+            print("wait not over")
+
+    def mute(self):
+        if self.wait_complete:
+            pyautogui.press("volumemute")
+            print("MUTE/UNMUTE")
+            self.wait_complete = False
+            timer = threading.Timer(3.0, self.end_wait)
+            timer.start()
+        else:
+            print("wait not over")
 
     def redefine_simple_algorithm(self, hsv_ranges):
         self.custom_simple_ranges = hsv_ranges
@@ -162,6 +202,18 @@ class ImageProcessor:
 
                 if results[0][1] > 0.65 and results[0][0] == 'fist':
                     mouse_click(x, y)
+
+                # thumb - wyciszenie
+                if results[0][1] > 0.65 and results[0][0] == 'thumb':
+                    self.mute()
+
+                # peace - następny utwór
+                if results[0][1] > 0.65 and results[0][0] == 'peace':
+                    self.next_track()
+
+                # straight - play/pause
+                if results[0][1] > 0.65 and results[0][0] == 'straight':
+                    self.play()
 
             print(results)
             print(direction)
