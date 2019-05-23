@@ -207,7 +207,7 @@ class ImageProcessor:
             x_image_size = processed_image.shape[1]
             x, y = pyautogui.position()
 
-            if results[0][1] > 0.8 and results[0][0] == 'palm':
+            if results[0][1] > 0.65 and results[0][0] == 'palm':
                 if even:
                     x_diff = cX1 - cX2
                     y_diff = cY1 - cY2
@@ -226,7 +226,7 @@ class ImageProcessor:
         if results[0][1] > 0.65 and results[0][0] == 'peace':
             self.next_track()
         # straight - play/pause
-        if results[0][1] > 0.65 and results[0][0] == 'straight':
+        if results[0][1] > 0.8 and results[0][0] == 'straight':
             self.play()
 
     def start_tensorflow_analyser(self, processed_image):

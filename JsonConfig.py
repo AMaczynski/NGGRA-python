@@ -1,0 +1,11 @@
+THUMB = 'thumb'
+PEACE = 'peace'
+PALM = 'palm'
+FIST = 'fist'
+STRAIGHT = 'straight'
+
+PLAY_PAUSE = 'play_pause'
+MUTE = 'mute'
+NEXT_TRACK = 'next_track'
+CLICK_MOUSE = 'click'
+MOVE_MOUSE = 'move_mouse'
