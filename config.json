@@ -1,7 +1,7 @@
 {
-    "thumb": "mute",
-    "peace": "next_track",
-    "straight": "play_pause",
-    "palm": "move_mouse",
-    "fist": "click"
+    "thumb": "Mute",
+    "peace": "Next Track",
+    "straight": "Play/Pause",
+    "palm": "Move mouse",
+    "fist": "Click mouse"
 }
