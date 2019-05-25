@@ -9,6 +9,7 @@ from imutils.video import VideoStream
 import imutils
 from PIL import Image
 from PIL import ImageTk
+import const
 
 DEFAULT_CONFIG_PATH = "config.json"
 target_algorithm = 0
@@ -40,12 +41,6 @@ class ProgramGui:
         self.button_start = Button(master, text="Start application", command=self.start_detector)
         self.entries_frame.pack()
         self.button_start.pack()
-
-        self.thumb = 0  # must match fields order and len(config)
-        self.palm = 1
-        self.fist = 2
-        self.straight = 3
-        self.peace = 4
 
         self.config = [None, None, None, None, None]
         self.load_file(DEFAULT_CONFIG_PATH)
@@ -93,11 +88,11 @@ class ProgramGui:
     def load_config(self):
         reader = JsonReader.Reader()
         reader.read_config(self.config_file)
-        self.config[self.thumb] = reader.get_attribute(JsonConfig.THUMB)
-        self.config[self.palm] = reader.get_attribute(JsonConfig.PALM)
-        self.config[self.fist] = reader.get_attribute(JsonConfig.FIST)
-        self.config[self.straight] = reader.get_attribute(JsonConfig.STRAIGHT)
-        self.config[self.peace] = reader.get_attribute(JsonConfig.PEACE)
+        self.config[const.thumb] = reader.get_attribute(JsonConfig.THUMB)
+        self.config[const.palm] = reader.get_attribute(JsonConfig.PALM)
+        self.config[const.fist] = reader.get_attribute(JsonConfig.FIST)
+        self.config[const.straight] = reader.get_attribute(JsonConfig.STRAIGHT)
+        self.config[const.peace] = reader.get_attribute(JsonConfig.PEACE)
 
         for i, spinner in enumerate(self.spinners):
             print("elo: " + str(i))
@@ -120,8 +115,10 @@ class ProgramGui:
 
     def start_detector(self):
         fun_config = []
-        for spinner in self.spinners:
-            fun_config.append(spinner.get())
+        indexes = [const.thumb, const.palm, const.fist, const.straight, const.peace]
+        for i in range(len(self.spinners)):
+            config_tuple = (indexes[i], self.spinners[i].get())
+            fun_config.append(config_tuple)
 
         self.vs.stop()
         self.master.destroy()
