@@ -8,6 +8,7 @@ ALGO_ADV = 1
 debug_display = True
 mouse_control = True
 
+
 # model goes to model/output_graph.pb
 # labels model/output_labels.txt
 class Detector:
@@ -17,15 +18,11 @@ class Detector:
         # ImageProcessor(cam reference, image scale)
         self.ip = ImageProcessor(cam, 0.5, mouse_control)
 
-    def start(self):
-        self.ip.start_loop(ALGO_SIMPLE, self, display=debug_display)
+    def start(self, config):
+        self.ip.load_config(config)
+        self.ip.start_loop(ALGO_SIMPLE, display=debug_display)
 
-    def on_gesture(self, gesture):
-        if gesture == "fist":
-            print("fist")
-        elif gesture == "palm":
-            print("palm")
 
 if __name__ == '__main__':
     detector = Detector()
-    detector.start()
+    detector.start(None)

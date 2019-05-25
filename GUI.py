@@ -119,10 +119,14 @@ class ProgramGui:
             self.spinners.append(spinner)
 
     def start_detector(self):
+        fun_config = []
+        for spinner in self.spinners:
+            fun_config.append(spinner.get())
+
         self.vs.stop()
         self.master.destroy()
         detector = Detector()
-        Detector.start(detector)
+        Detector.start(detector, fun_config)
 
 
 if __name__ == "__main__":

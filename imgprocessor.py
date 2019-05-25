@@ -1,5 +1,5 @@
 import math
-import os
+import JsonConfig
 import threading
 from time import sleep
 import pyautogui
@@ -125,6 +125,7 @@ class ImageProcessor:
         self.custom_simple_ranges = None
         self.mouse_control = mouse_control
         self.wait_complete = True
+        self.config = None
 
     # czekanie żeby nie spamowało akcjami cały czas
     # jeden gest na 3 sekundy - jedna akcja
@@ -166,7 +167,7 @@ class ImageProcessor:
     def redefine_simple_algorithm(self, hsv_ranges):
         self.custom_simple_ranges = hsv_ranges
 
-    def start_loop(self, target_algorithm, detector, display=False):
+    def start_loop(self, target_algorithm, display=False):
         even = True
         start = False
         cX1 = 0
@@ -187,8 +188,8 @@ class ImageProcessor:
 
             self.controls(cX1, cX2, cY1, cY2, even, processed_image, results)
 
-            print(results)
-            print(direction)
+            # print(results)
+            # print(direction)
 
             start = True
             even = not even
@@ -293,3 +294,8 @@ class ImageProcessor:
         processed_image = cv2.cvtColor(processed_image, cv2.COLOR_GRAY2BGR)
 
         return processed_image
+
+    def load_config(self, config):
+        self.config = config
+        for i in config:
+            print(i)
