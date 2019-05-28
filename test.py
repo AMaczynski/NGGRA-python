@@ -1,5 +1,3 @@
-import os
-
 import cv2
 
 from imgprocessor import ImageProcessor, follow_center

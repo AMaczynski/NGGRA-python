@@ -9,7 +9,6 @@ from imutils.video import VideoStream
 import imutils
 from PIL import Image
 from PIL import ImageTk
-import const
 
 DEFAULT_CONFIG_PATH = "config.json"
 target_algorithm = 0
