@@ -1,4 +1,5 @@
 import cv2
+import pyautogui
 
 COLOR_RED = (66, 66, 44)
 
@@ -6,6 +7,35 @@ RIGHT = 1
 LEFT = 2
 UP = 3
 DOWN = 4
+
+
+def calc_new_mouse_position(x_diff, y_diff, x_image_size):
+    x_pos, y_pos = pyautogui.position()
+    x_screen, y_screen = pyautogui.size()
+    scale = x_screen / x_image_size
+    x_pos = x_pos - x_diff * scale
+    y_pos = y_pos + y_diff * scale
+    return x_pos, y_pos
+
+
+def move_mouse(x_pos, y_pos):
+    pyautogui.moveTo(x_pos, y_pos)
+
+
+def mouse_click(x, y):
+    pyautogui.click(x, y)
+
+
+def mute():
+    pyautogui.press("volumemute")
+
+
+def next_track():
+    pyautogui.press("nexttrack")
+
+
+def play():
+    pyautogui.press("playpause")
 
 
 def get_largest_contour(frame):

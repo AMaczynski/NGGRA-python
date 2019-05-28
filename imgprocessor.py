@@ -1,11 +1,12 @@
 from time import sleep
 
 import cv2
+import pyautogui
 
-from FunctionManager import *
+from ConfigManager import *
 from algoimpl import simple_algorithm, advanced_algorithm
 from classifier import Classifier
-from functions import follow_center, get_largest_contour
+from functions import follow_center, get_largest_contour, calc_new_mouse_position
 
 ALGORITHM_SIMPLE = 0
 ALGORITHM_ADV = 1
@@ -93,7 +94,7 @@ class ImageProcessor:
                     self.detector.on_gesture_move(x, y)
 
             if probability > 0.65 and gesture == self.gesture_click:
-                mouse_click(x, y)
+                self.detector.on_gesture_click(x, y)
 
         if probability > 0.65 and gesture != NONE:
             self.detector.on_gesture(gesture)

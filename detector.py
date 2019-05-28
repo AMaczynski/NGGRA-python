@@ -1,6 +1,9 @@
+import threading
+
 import cv2
 
-from FunctionManager import *
+from ConfigManager import *
+from functions import move_mouse, mouse_click, mute, play, next_track
 from imgprocessor import ImageProcessor
 
 ALGO_SIMPLE = 0
@@ -15,6 +18,7 @@ mouse_control = True
 class Detector:
     def __init__(self):
         cam = cv2.VideoCapture(0)
+        self.wait_complete = True
         self.ip = ImageProcessor(cam, 0.5)
         if mouse_control:
             self.ip.enable_mouse_control()
@@ -22,17 +26,33 @@ class Detector:
             self.ip.set_gesture_click(FIST)
 
         self.ip.attach_detector(self)
-        self.function_manager = FunctionManager()
+        self.config_manager = ConfigManager()
 
     def start(self, config):
-        self.function_manager.load_config(config)
+        self.config_manager.load_config(config)
         self.ip.start_loop(ALGO_SIMPLE, display=debug_display)
 
     def on_gesture(self, gesture):
-        try:
-            self.function_manager.fun_dictionary.get(gesture)()
-        except TypeError:
-            print(gesture)
+        if self.wait_complete:
+            action = self.config_manager.get_action(gesture)
+            try:
+                if action == PLAY_PAUSE:
+                    play()
+                elif action == NEXT_TRACK:
+                    next_track()
+                elif action == MUTE:
+                    mute()
+                else:  # mouse move / mouse click
+                    return
+                self.wait_complete = False
+                timer = threading.Timer(3.0, self.end_wait)
+                timer.start()
+            except TypeError:
+                print(gesture)
+
+    def end_wait(self):
+        self.wait_complete = True
+        print("wait over")
 
     def on_gesture_move(self, x_pos, y_pos):
         move_mouse(x_pos, y_pos)

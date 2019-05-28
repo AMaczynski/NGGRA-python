@@ -17,7 +17,7 @@ target_algorithm = 0
 class ProgramGui:
     def __init__(self, master):
         self.master = master
-        master.title("Disease simulation")
+        master.title("NGGRA-python")
         master.minsize(width=600, height=400)
 
         self.menu = Menu(master)
