@@ -1,44 +1,21 @@
-import wmi as wmi
-import pyautogui
 import threading
+
+import pyautogui
+
 from JsonConfig import *
 
-# def speakers_mute():
-#     sessions = AudioUtilities.GetAllSessions()
-#     for session in sessions:
-#         volume = session.SimpleAudioVolume
-#         if session.Process and session.Process.name() == "chrome.exe":
-#             volume.SetMute(0, None)
-#         else:
-#             volume.SetMute(1, None)
-#
-#
-# def speakers_change_volume_level(mode):
-#     if mode == 1:
-#         changeLevel = 0.1
-#     else:
-#         changeLevel = -0.1
-#
-#     sessions = AudioUtilities.GetAllSessions()
-#     for session in sessions:
-#         volume = session._ctl.QueryInterface(ISimpleAudioVolume)
-#         if session.Process and session.Process.name() == "chrome.exe":
-#             volume.SetMasterVolume(volume.GetMasterVolume() + changeLevel, None)
 
-
-def change_brightness(brightness_level):
-    wmi.WMI(namespace='wmi').WmiMonitorBrightnessMethods()[0].WmiSetBrightness(brightness_level, 0)
-
-
-def move_mouse(x_diff, y_diff, x_image_size):
+def calc_new_mouse_position(x_diff, y_diff, x_image_size):
     x_pos, y_pos = pyautogui.position()
     x_screen, y_screen = pyautogui.size()
     scale = x_screen / x_image_size
     x_pos = x_pos - x_diff * scale
     y_pos = y_pos + y_diff * scale
-    pyautogui.moveTo(x_pos, y_pos)
-
     return x_pos, y_pos
+
+
+def move_mouse(x_pos, y_pos):
+    pyautogui.moveTo(x_pos, y_pos)
 
 
 def mouse_click(x, y):

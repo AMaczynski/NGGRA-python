@@ -18,7 +18,7 @@ grab_test = True
 if __name__ == '__main__':
     cam = cv2.VideoCapture(0)
     # ImageProcessor(cam reference, image scale)
-    ip = ImageProcessor(cam, 0.5,False)
+    ip = ImageProcessor(cam, 0.5)
     start_number = 0
 
     custom_hsv_ranges = ((80, 110),  # H

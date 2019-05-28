@@ -1,99 +1,42 @@
 from time import sleep
-from FunctionManager import *
+
 import cv2
+
+from FunctionManager import *
 from algoimpl import simple_algorithm, advanced_algorithm
 from classifier import Classifier
+from functions import follow_center, get_largest_contour
 
 ALGORITHM_SIMPLE = 0
 ALGORITHM_ADV = 1
-
-RIGHT = 1
-LEFT = 2
-UP = 3
-DOWN = 4
-
-COLOR_RED = (66, 66, 244)
 
 STATE_WAITING = 0
 STATE_GRABBING = 1
 
 
-def get_largest_contour(frame):
-    ret, thresh = cv2.threshold(frame, 127, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    biggest_contour = None
-    biggest_contour_area = -1
-    if contours is not None:
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if area > biggest_contour_area:
-                biggest_contour = contour
-                biggest_contour_area = area
-
-        if biggest_contour is not None:
-            return cv2.boundingRect(biggest_contour)
-    return None
-
-
-def follow_center(processed_image, even, start, cX1, cX2, cY1, cY2):
-    gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(gray_image, 127, 255, 0)
-    moments = cv2.moments(thresh)
-
-    if moments["m00"] != 0:
-        if even:
-            cX1 = int(moments["m10"] / moments["m00"])
-            cY1 = int(moments["m01"] / moments["m00"])
-        else:
-            cX2 = int(moments["m10"] / moments["m00"])
-            cY2 = int(moments["m01"] / moments["m00"])
-
-    if even:
-        cX_actual = cX1
-        cY_actual = cY1
-        cX_prev = cX2
-        cY_prev = cY2
-    else:
-        cX_actual = cX2
-        cY_actual = cY2
-        cX_prev = cX1
-        cY_prev = cY1
-
-    for i in range(-4, 5):
-        try:
-            processed_image[cY_actual + i][cX_actual] = COLOR_RED
-        except IndexError:
-            print("error")
-
-    for j in range(-4, 5):
-        try:
-            processed_image[cY_actual][cX_actual + j] = COLOR_RED
-        except IndexError:
-            print("error")
-
-    if start:
-        # print(even)
-        if cX_actual - cX_prev > 5:
-            return RIGHT, cX1, cX2, cY1, cY2
-        if cX_prev - cX_actual > 5:
-            return LEFT, cX1, cX2, cY1, cY2
-        if cY_actual - cY_prev > 5:
-            return DOWN, cX1, cX2, cY1, cY2
-        if cY_prev - cY_actual > 5:
-            return UP, cX1, cX2, cY1, cY2
-
-    return None, cX1, cX2, cY1, cY2
-
-
 class ImageProcessor:
-    def __init__(self, cam, target_scale, mouse_control):
+    def __init__(self, cam, target_scale):
         self.classifier = Classifier()
         self.cam = cam
         self.target_scale = target_scale
         self.custom_simple_ranges = None
-        self.mouse_control = mouse_control
-        self.config = None
-        self.function_manager = FunctionManager()
+        self.mouse_control = False
+
+        self.detector = None
+        self.gesture_move = None
+        self.gesture_click = None
+
+    def attach_detector(self, detector):
+        self.detector = detector
+
+    def enable_mouse_control(self):
+        self.mouse_control = True
+
+    def set_gesture_move(self, gesture_move):
+        self.gesture_move = gesture_move
+
+    def set_gesture_click(self, gesture_click):
+        self.gesture_click = gesture_click
 
     def redefine_simple_algorithm(self, hsv_ranges):
         self.custom_simple_ranges = hsv_ranges
@@ -119,9 +62,6 @@ class ImageProcessor:
 
             self.controls(cX1, cX2, cY1, cY2, even, processed_image, results)
 
-            # print(results)
-            # print(direction)
-
             start = True
             even = not even
 
@@ -140,24 +80,23 @@ class ImageProcessor:
         if self.mouse_control:
             x_image_size = processed_image.shape[1]
             x, y = pyautogui.position()
-            if probability > 0.65 and gesture == PALM:
+            if probability > 0.65 and gesture == self.gesture_move:
                 if even:
                     x_diff = cX1 - cX2
                     y_diff = cY1 - cY2
-                    x, y = move_mouse(x_diff, y_diff, x_image_size)
+                    x, y = calc_new_mouse_position(x_diff, y_diff, x_image_size)
+                    self.detector.on_gesture_move(x, y)
                 else:
                     x_diff = cX2 - cX1
                     y_diff = cY2 - cY1
-                    x, y = move_mouse(x_diff, y_diff, x_image_size)
+                    x, y = calc_new_mouse_position(x_diff, y_diff, x_image_size)
+                    self.detector.on_gesture_move(x, y)
 
-            if probability > 0.65 and gesture == FIST:
+            if probability > 0.65 and gesture == self.gesture_click:
                 mouse_click(x, y)
 
         if probability > 0.65 and gesture != NONE:
-            try:
-                self.function_manager.fun_dictionary.get(gesture)()
-            except TypeError:
-                print(gesture)
+            self.detector.on_gesture(gesture)
 
     def start_tensorflow_analyser(self, processed_image):
         return self.classifier.label_image(processed_image)
@@ -223,6 +162,3 @@ class ImageProcessor:
         processed_image = cv2.cvtColor(processed_image, cv2.COLOR_GRAY2BGR)
 
         return processed_image
-
-    def load_config(self, config):
-        self.function_manager.load_config(config)
