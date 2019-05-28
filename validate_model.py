@@ -1,5 +1,3 @@
-import random
-
 from classifier import Classifier
 import os
 

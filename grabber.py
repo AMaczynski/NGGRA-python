@@ -52,7 +52,6 @@ if __name__ == '__main__':
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
-
     if algorithm is ALGO_SIMPLE:
         # custom_hsv_ranges = ((20, 50), # H
         #                      (0,255), # S

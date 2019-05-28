@@ -1,8 +1,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
-import cv2
 import numpy as np
 import tensorflow as tf
 
@@ -25,7 +23,8 @@ class Classifier:
         self.sess = tf.Session(graph=self.graph)
         self.sess_ng = tf.Session()
 
-    def load_graph(self, model_file):
+    @staticmethod
+    def load_graph(model_file):
         graph = tf.Graph()
         graph_def = tf.GraphDef()
 
@@ -61,7 +60,8 @@ class Classifier:
         result = self.sess_ng.run(normalized)
         return result
 
-    def load_labels(self, label_file):
+    @staticmethod
+    def load_labels(label_file):
         label = []
         proto_as_ascii_lines = tf.gfile.GFile(label_file).readlines()
         for l in proto_as_ascii_lines:

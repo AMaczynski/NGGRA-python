@@ -54,10 +54,12 @@ class Detector:
         self.wait_complete = True
         print("wait over")
 
-    def on_gesture_move(self, x_pos, y_pos):
+    @staticmethod
+    def on_gesture_move(x_pos, y_pos):
         move_mouse(x_pos, y_pos)
 
-    def on_gesture_click(self, x_pos, y_pos):
+    @staticmethod
+    def on_gesture_click(x_pos, y_pos):
         mouse_click(x_pos, y_pos)
 
 
