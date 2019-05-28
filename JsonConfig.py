@@ -3,6 +3,7 @@ PEACE = 'peace'
 PALM = 'palm'
 FIST = 'fist'
 STRAIGHT = 'straight'
+NONE = 'none'
 
 PLAY_PAUSE = 'Play/Pause'
 MUTE = 'Mute'

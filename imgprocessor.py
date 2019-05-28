@@ -1,16 +1,11 @@
-import math
-import JsonConfig
-import threading
 from time import sleep
-import pyautogui
-
+from FunctionManager import *
 import cv2
-
 from algoimpl import simple_algorithm, advanced_algorithm
 from classifier import Classifier
 
-ALGO_SIMPLE = 0
-ALGO_ADV = 1
+ALGORITHM_SIMPLE = 0
+ALGORITHM_ADV = 1
 
 RIGHT = 1
 LEFT = 2
@@ -38,33 +33,6 @@ def get_largest_contour(frame):
         if biggest_contour is not None:
             return cv2.boundingRect(biggest_contour)
     return None
-
-
-def move_mouse2(x_diff, y_diff, x_image_size):
-    x_pos, y_pos = pyautogui.position()
-    x_screen, y_screen = pyautogui.size()
-    scale = x_screen / x_image_size
-    x_pos = x_pos - x_diff * scale
-    y_pos = y_pos + y_diff * scale
-    pyautogui.moveTo(x_pos, y_pos)
-
-    return x_pos, y_pos
-
-
-def move_mouse(x, y, x_max, y_max):
-    x_screen, y_screen = pyautogui.size()
-
-    # tutaj usuwamy efekt odbicia lustrzanego
-    x_value=x_screen-(x * math.floor(x_screen / x_max))
-    y_value = y * math.floor(y_screen / y_max)
-
-    pyautogui.moveTo(x_value, y_value)
-
-    return x_value, y_value
-
-
-def mouse_click(x, y):
-    pyautogui.click(x, y)
 
 
 def follow_center(processed_image, even, start, cX1, cX2, cY1, cY2):
@@ -104,7 +72,7 @@ def follow_center(processed_image, even, start, cX1, cX2, cY1, cY2):
             print("error")
 
     if start:
-        print(even)
+        # print(even)
         if cX_actual - cX_prev > 5:
             return RIGHT, cX1, cX2, cY1, cY2
         if cX_prev - cX_actual > 5:
@@ -124,45 +92,8 @@ class ImageProcessor:
         self.target_scale = target_scale
         self.custom_simple_ranges = None
         self.mouse_control = mouse_control
-        self.wait_complete = True
         self.config = None
-
-    # czekanie żeby nie spamowało akcjami cały czas
-    # jeden gest na 3 sekundy - jedna akcja
-    # żeby użytkownik zdążył zabrać rękę/zmienić gest
-    def end_wait(self):
-        self.wait_complete = True
-        print("wait over")
-
-    def play(self):
-        if self.wait_complete:
-            pyautogui.press("playpause")
-            print("PLAY/PAUSE")
-            self.wait_complete = False
-            timer = threading.Timer(3.0, self.end_wait)
-            timer.start()
-        else:
-            print("wait not over")
-
-    def next_track(self):
-        if self.wait_complete:
-            pyautogui.press("nexttrack")
-            print("NEXT TRACK")
-            self.wait_complete = False
-            timer = threading.Timer(3.0, self.end_wait)
-            timer.start()
-        else:
-            print("wait not over")
-
-    def mute(self):
-        if self.wait_complete:
-            pyautogui.press("volumemute")
-            print("MUTE/UNMUTE")
-            self.wait_complete = False
-            timer = threading.Timer(3.0, self.end_wait)
-            timer.start()
-        else:
-            print("wait not over")
+        self.function_manager = FunctionManager()
 
     def redefine_simple_algorithm(self, hsv_ranges):
         self.custom_simple_ranges = hsv_ranges
@@ -204,31 +135,29 @@ class ImageProcessor:
         cv2.destroyAllWindows()
 
     def controls(self, cX1, cX2, cY1, cY2, even, processed_image, results):
+        gesture = results[0][0]
+        probability = results[0][1]
         if self.mouse_control:
             x_image_size = processed_image.shape[1]
             x, y = pyautogui.position()
-
-            if results[0][1] > 0.65 and results[0][0] == 'palm':
+            if probability > 0.65 and gesture == PALM:
                 if even:
                     x_diff = cX1 - cX2
                     y_diff = cY1 - cY2
-                    x, y = move_mouse2(x_diff, y_diff, x_image_size)
+                    x, y = move_mouse(x_diff, y_diff, x_image_size)
                 else:
                     x_diff = cX2 - cX1
                     y_diff = cY2 - cY1
-                    x, y = move_mouse2(x_diff, y_diff, x_image_size)
+                    x, y = move_mouse(x_diff, y_diff, x_image_size)
 
-            if results[0][1] > 0.65 and results[0][0] == 'fist':
+            if probability > 0.65 and gesture == FIST:
                 mouse_click(x, y)
-        # thumb - wyciszenie
-        if results[0][1] > 0.65 and results[0][0] == 'thumb':
-            self.mute()
-        # peace - następny utwór
-        if results[0][1] > 0.65 and results[0][0] == 'peace':
-            self.next_track()
-        # straight - play/pause
-        if results[0][1] > 0.8 and results[0][0] == 'straight':
-            self.play()
+
+        if probability > 0.65 and gesture != NONE:
+            try:
+                self.function_manager.fun_dictionary.get(gesture)()
+            except TypeError:
+                print(gesture)
 
     def start_tensorflow_analyser(self, processed_image):
         return self.classifier.label_image(processed_image)
@@ -253,8 +182,8 @@ class ImageProcessor:
                 else:
                     img_name = "output/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
                     img_raw_name = "output_raw/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)
-                    img_cropped_name = "output_cropped/%s/%s_%d.jpg" % (
-                    file_name, file_name, start_number + img_counter)
+                    img_cropped_name = "output_cropped/%s/%s_%d.jpg" % (file_name, file_name,
+                                                                        start_number + img_counter)
 
                     gray_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
                     contours = get_largest_contour(gray_image)
@@ -286,9 +215,9 @@ class ImageProcessor:
         scaled_img = cv2.resize(frame, (int(new_x), int(new_y)))
 
         processed_image = None
-        if target_algorithm == ALGO_SIMPLE:
+        if target_algorithm == ALGORITHM_SIMPLE:
             processed_image = simple_algorithm(scaled_img, self.custom_simple_ranges)
-        elif target_algorithm == ALGO_ADV:
+        elif target_algorithm == ALGORITHM_ADV:
             processed_image = advanced_algorithm(scaled_img)
 
         processed_image = cv2.cvtColor(processed_image, cv2.COLOR_GRAY2BGR)
@@ -296,6 +225,4 @@ class ImageProcessor:
         return processed_image
 
     def load_config(self, config):
-        self.config = config
-        for i in config:
-            print(i)
+        self.function_manager.load_config(config)

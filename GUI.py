@@ -3,7 +3,7 @@ from tkinter.filedialog import askopenfilename
 from detector import Detector
 import cv2
 import JsonReader
-import JsonConfig
+from JsonConfig import *
 import threading
 from imutils.video import VideoStream
 import imutils
@@ -27,8 +27,9 @@ class ProgramGui:
         self.menu.add_cascade(label="File", menu=self.file_menu)
         master.config(menu=self.menu)
         self.vs = VideoStream().start()
+        self.frame = None
 
-        self.spinners = []
+        self.spinners = {}
         self.canvas = None
         self.config_file = "config.json"
         self.program = None
@@ -42,7 +43,7 @@ class ProgramGui:
         self.entries_frame.pack()
         self.button_start.pack()
 
-        self.config = [None, None, None, None, None]
+        self.config = {}
         self.load_file(DEFAULT_CONFIG_PATH)
 
         self.stopEvent = threading.Event()
@@ -50,27 +51,16 @@ class ProgramGui:
         self.thread.start()
 
     def video_loop(self):
-        # keep looping over frames until we are instructed to stop
         while not self.stopEvent.is_set():
-            # grab the frame from the video stream and resize it to
-            # have a maximum width of 300 pixels
             self.frame = self.vs.read()
-            self.frame = imutils.resize(self.frame, width=300)
-
-            # OpenCV represents images in BGR order; however PIL
-            # represents images in RGB order, so we need to swap
-            # the channels, then convert to PIL and ImageTk format
+            self.frame = imutils.resize(self.frame, width=600)
             image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(image)
             image = ImageTk.PhotoImage(image)
-
-            # if the panel is not None, we need to initialize it
             if self.panel is None:
                 self.panel = Label(image=image)
                 self.panel.image = image
                 self.panel.pack(padx=10, pady=10)
-
-            # otherwise, simply update the panel
             else:
                 self.panel.configure(image=image)
                 self.panel.image = image
@@ -88,21 +78,20 @@ class ProgramGui:
     def load_config(self):
         reader = JsonReader.Reader()
         reader.read_config(self.config_file)
-        self.config[const.thumb] = reader.get_attribute(JsonConfig.THUMB)
-        self.config[const.palm] = reader.get_attribute(JsonConfig.PALM)
-        self.config[const.fist] = reader.get_attribute(JsonConfig.FIST)
-        self.config[const.straight] = reader.get_attribute(JsonConfig.STRAIGHT)
-        self.config[const.peace] = reader.get_attribute(JsonConfig.PEACE)
+        self.config[THUMB] = reader.get_attribute(THUMB)
+        self.config[PALM] = reader.get_attribute(PALM)
+        self.config[FIST] = reader.get_attribute(FIST)
+        self.config[STRAIGHT] = reader.get_attribute(STRAIGHT)
+        self.config[PEACE] = reader.get_attribute(PEACE)
 
-        for i, spinner in enumerate(self.spinners):
-            print("elo: " + str(i))
+        for key, spinner in self.spinners.items():
             var = StringVar(root)
-            var.set(self.config[i])
+            var.set(self.config[key])
             spinner.config(textvariable=var)
 
     def make_form(self):
-        fields = 'Thumb', 'Peace', 'Palm', 'Fist', 'Straight'
-        values = ('Move mouse', 'Click mouse', 'Next track', 'Mute', 'Play/Pause')
+        fields = THUMB, PALM, FIST, STRAIGHT, PEACE
+        values = (MOVE_MOUSE, CLICK_MOUSE, PLAY_PAUSE, MUTE, NEXT_TRACK)
         for i, field in enumerate(fields):
             row_frame = Frame(self.entries_frame)
             field_label = Label(row_frame, width=15, text=fields[i], anchor='w')
@@ -111,13 +100,14 @@ class ProgramGui:
             row_frame.grid(row=int(i / 2), column=(i % 2))
             field_label.pack(side=LEFT)
             spinner.pack(side=RIGHT, expand=YES, fill=X)
-            self.spinners.append(spinner)
+            self.spinners[field] = spinner
 
     def start_detector(self):
         fun_config = []
-        indexes = [const.thumb, const.palm, const.fist, const.straight, const.peace]
+        indexes = [THUMB, PALM, FIST, STRAIGHT, PEACE]
         for i in range(len(self.spinners)):
-            config_tuple = (indexes[i], self.spinners[i].get())
+            gesture = indexes[i]
+            config_tuple = (gesture, self.spinners[gesture].get())
             fun_config.append(config_tuple)
 
         self.vs.stop()
