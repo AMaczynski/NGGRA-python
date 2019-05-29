@@ -1,11 +1,11 @@
 import json
 from JsonConfig import *
 
-default_config = {THUMB: MUTE,
-                  PEACE: NEXT_TRACK,
-                  STRAIGHT: PLAY_PAUSE,
-                  PALM: MOVE_MOUSE,
-                  FIST: CLICK_MOUSE}
+default_config = {GESTURE_THUMB: MUTE,
+                  GESTURE_PEACE: NEXT_TRACK,
+                  GESTURE_STRAIGHT: PLAY_PAUSE,
+                  GESTURE_PALM: MOVE_MOUSE,
+                  GESTURE_FIST: CLICK_MOUSE}
 
 
 def save_config(filename, model):

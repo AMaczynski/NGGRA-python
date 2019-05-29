@@ -77,11 +77,11 @@ class ProgramGui:
     def load_config(self):
         reader = JsonReader.Reader()
         reader.read_config(self.config_file)
-        self.config[THUMB] = reader.get_attribute(THUMB)
-        self.config[PALM] = reader.get_attribute(PALM)
-        self.config[FIST] = reader.get_attribute(FIST)
-        self.config[STRAIGHT] = reader.get_attribute(STRAIGHT)
-        self.config[PEACE] = reader.get_attribute(PEACE)
+        self.config[GESTURE_THUMB] = reader.get_attribute(GESTURE_THUMB)
+        self.config[GESTURE_PALM] = reader.get_attribute(GESTURE_PALM)
+        self.config[GESTURE_FIST] = reader.get_attribute(GESTURE_FIST)
+        self.config[GESTURE_STRAIGHT] = reader.get_attribute(GESTURE_STRAIGHT)
+        self.config[GESTURE_PEACE] = reader.get_attribute(GESTURE_PEACE)
 
         for key, spinner in self.spinners.items():
             var = StringVar(root)
@@ -89,8 +89,8 @@ class ProgramGui:
             spinner.config(textvariable=var)
 
     def make_form(self):
-        fields = THUMB, PALM, FIST, STRAIGHT, PEACE
-        values = (MOVE_MOUSE, CLICK_MOUSE, PLAY_PAUSE, MUTE, NEXT_TRACK)
+        fields = GESTURE_THUMB, GESTURE_PALM, GESTURE_FIST, GESTURE_STRAIGHT, GESTURE_PEACE
+        values = (NO_ACTION, MOVE_MOUSE, CLICK_MOUSE, PLAY_PAUSE, MUTE, NEXT_TRACK)
         for i, field in enumerate(fields):
             row_frame = Frame(self.entries_frame)
             field_label = Label(row_frame, width=15, text=fields[i], anchor='w')
@@ -103,7 +103,7 @@ class ProgramGui:
 
     def start_detector(self):
         fun_config = []
-        indexes = [THUMB, PALM, FIST, STRAIGHT, PEACE]
+        indexes = [GESTURE_THUMB, GESTURE_PALM, GESTURE_FIST, GESTURE_STRAIGHT, GESTURE_PEACE]
         for i in range(len(self.spinners)):
             gesture = indexes[i]
             config_tuple = (gesture, self.spinners[gesture].get())
