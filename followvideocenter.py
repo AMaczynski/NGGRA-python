@@ -50,13 +50,7 @@ class FollowShapeCenter:
         self.even = not self.even
 
         if self.start:
-            if cX_actual - cX_prev > 5:
-                return self.even, self.cX1, self.cX2, self.cY1, self.cY2
-            if cX_prev - cX_actual > 5:
-                return self.even, self.cX1, self.cX2, self.cY1, self.cY2
-            if cY_actual - cY_prev > 5:
-                return self.even, self.cX1, self.cX2, self.cY1, self.cY2
-            if cY_prev - cY_actual > 5:
+            if abs(cX_actual - cX_prev) > 5 or abs(cY_actual - cY_prev) > 5:
                 return self.even, self.cX1, self.cX2, self.cY1, self.cY2
 
         self.start = True
