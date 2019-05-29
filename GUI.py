@@ -1,8 +1,9 @@
 from tkinter import *
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 from detector import Detector
 import cv2
 import JsonReader
+import JsonWriter
 from JsonConfig import *
 import threading
 from imutils.video import VideoStream
@@ -17,43 +18,29 @@ target_algorithm = 0
 class ProgramGui:
     def __init__(self, master):
         self.master = master
-        master.title("NGGRA-python")
+        master.title("NGGRA")
         master.minsize(width=600, height=400)
-
         self.menu = Menu(master)
         self.file_menu = Menu(self.menu, tearoff=0)
         self.file_menu.add_command(label="Load configuration", command=self.load_file)
+        self.file_menu.add_command(label="Save configuration", command=self.save_file)
         self.menu.add_cascade(label="File", menu=self.file_menu)
         master.config(menu=self.menu)
         self.vs = VideoStream().start()
         self.frame = None
-
         self.spinners = {}
         self.canvas = None
         self.config_file = "config.json"
         self.program = None
         self.is_config_file_loaded = False
         self.panel = None
-
         self.entries_frame = Frame(master, width=2)
-
         self.make_form()
+        self.button_start = Button(master, text="Start application", command=self.start_detector)
         self.entries_frame.pack()
-
-        self.row_frame = Frame(self.entries_frame)
-        self.row_frame.config(padx=5)
-
-        self.row_frame2 = Frame(self.entries_frame)
-        self.row_frame2.config(padx=5)
-        self.button_start = Button(self.row_frame2, text="Start application", command=self.start_detector)
-        self.button_save = Button(self.row_frame, text="Save config", command=self.start_detector)
-        self.button_start.pack(side=LEFT)
-        self.button_save.pack(side=RIGHT)
-        self.row_frame.grid(row=3, column=0, padx=10, pady=10)
-        self.row_frame2.grid(row=3, column=1, padx=10, pady=10)
+        self.button_start.pack()
         self.config = {}
         self.load_file(DEFAULT_CONFIG_PATH)
-
         self.stopEvent = threading.Event()
         self.thread = threading.Thread(target=self.video_loop, args=())
         self.thread.start()
@@ -96,6 +83,20 @@ class ProgramGui:
             var = StringVar(root)
             var.set(self.config[key])
             spinner.config(textvariable=var)
+
+    def save_file(self):
+        filename = asksaveasfilename()
+        if len(filename) > 0 and filename.endswith(".json"):
+            self.save_config(filename)
+
+    def save_config(self, filename):
+        writer = JsonWriter
+        config = {}
+        indexes = [GESTURE_THUMB, GESTURE_PALM, GESTURE_FIST, GESTURE_STRAIGHT, GESTURE_PEACE]
+        for i in range(len(self.spinners)):
+            gesture = indexes[i]
+            config[gesture] = self.spinners[gesture].get()
+        writer.save_config(filename, config)
 
     def make_form(self):
         fields = GESTURE_THUMB, GESTURE_PALM, GESTURE_FIST, GESTURE_STRAIGHT, GESTURE_PEACE
