@@ -10,7 +10,6 @@ ALGO_SIMPLE = 0
 ALGO_ADV = 1
 
 debug_display = True
-mouse_control = True
 
 
 # model goes to model/output_graph.pb
@@ -20,16 +19,15 @@ class Detector:
         cam = cv2.VideoCapture(0)
         self.wait_complete = True
         self.ip = ImageProcessor(cam, 0.5)
-        if mouse_control:
-            self.ip.enable_mouse_control()
-            self.ip.set_gesture_move(PALM)
-            self.ip.set_gesture_click(FIST)
 
         self.ip.attach_detector(self)
         self.config_manager = ConfigManager()
 
     def start(self, config):
         self.config_manager.load_config(config)
+        self.ip.set_gesture_move(self.config_manager.get_mouse_move_gesture())
+        self.ip.set_gesture_click(self.config_manager.get_mouse_click_gesture())
+
         self.ip.start_loop(ALGO_SIMPLE, display=debug_display)
 
     def on_gesture(self, gesture):
@@ -42,7 +40,7 @@ class Detector:
                     next_track()
                 elif action == MUTE:
                     mute()
-                else:  # mouse move / mouse click
+                else:  # mouse move / mouse click / none
                     return
                 self.wait_complete = False
                 timer = threading.Timer(3.0, self.end_wait)
