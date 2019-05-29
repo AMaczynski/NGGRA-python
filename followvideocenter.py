@@ -39,20 +39,20 @@ class FollowShapeCenter:
             try:
                 processed_image[cY_actual + i][cX_actual] = COLOR_RED
             except IndexError:
-                print("error")
+                print("index out of image")
 
         for j in range(-4, 5):
             try:
                 processed_image[cY_actual][cX_actual + j] = COLOR_RED
             except IndexError:
-                print("error")
+                print("index out of image")
 
         self.even = not self.even
-
+        x_diff = cX_actual - cX_prev
+        y_diff = cY_actual - cY_prev
         if self.start:
-            if abs(cX_actual - cX_prev) > 5 or abs(cY_actual - cY_prev) > 5:
-                return self.even, self.cX1, self.cX2, self.cY1, self.cY2
+            if abs(x_diff) > 5 or abs(y_diff) > 5:
+                return x_diff, y_diff
 
         self.start = True
-
-        return self.even, self.cX1, self.cX2, self.cY1, self.cY2
+        return x_diff, y_diff

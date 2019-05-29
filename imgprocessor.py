@@ -69,10 +69,9 @@ class ImageProcessor:
             return
 
         if self.gesture_move is not None and gesture == self.gesture_move:
-            even, cx1, cx2, cy1, cy2 = self.fvc.follow_center(processed_image)
+            cx_diff, cy_diff = self.fvc.follow_center(processed_image)
             x_image_size = processed_image.shape[1]
-            coords_change = calc_coords_change(cx1, cx2, cy1, cy2, even)
-            new_mouse_position = calc_new_mouse_position(coords_change[0], coords_change[1], x_image_size)
+            new_mouse_position = calc_new_mouse_position(cx_diff, cy_diff, x_image_size)
             self.detector.on_gesture_move(new_mouse_position[0], new_mouse_position[1])
 
         if self.gesture_click is not None and gesture == self.gesture_click:

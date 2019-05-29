@@ -35,13 +35,22 @@ class ProgramGui:
         self.is_config_file_loaded = False
         self.panel = None
 
-        self.entries_frame = Frame(master)
+        self.entries_frame = Frame(master, width=2)
 
         self.make_form()
-        self.button_start = Button(master, text="Start application", command=self.start_detector)
         self.entries_frame.pack()
-        self.button_start.pack()
 
+        self.row_frame = Frame(self.entries_frame)
+        self.row_frame.config(padx=5)
+
+        self.row_frame2 = Frame(self.entries_frame)
+        self.row_frame2.config(padx=5)
+        self.button_start = Button(self.row_frame2, text="Start application", command=self.start_detector)
+        self.button_save = Button(self.row_frame, text="Save config", command=self.start_detector)
+        self.button_start.pack(side=LEFT)
+        self.button_save.pack(side=RIGHT)
+        self.row_frame.grid(row=3, column=0, padx=10, pady=10)
+        self.row_frame2.grid(row=3, column=1, padx=10, pady=10)
         self.config = {}
         self.load_file(DEFAULT_CONFIG_PATH)
 
@@ -93,10 +102,10 @@ class ProgramGui:
         values = (NO_ACTION, MOVE_MOUSE, CLICK_MOUSE, PLAY_PAUSE, MUTE, NEXT_TRACK)
         for i, field in enumerate(fields):
             row_frame = Frame(self.entries_frame)
-            field_label = Label(row_frame, width=15, text=fields[i], anchor='w')
+            field_label = Label(row_frame, width=6, text=fields[i], anchor='center')
             spinner = Spinbox(row_frame)
-            spinner.config(values=values)
-            row_frame.grid(row=int(i / 2), column=(i % 2))
+            spinner.config(values=values, wrap=True)
+            row_frame.grid(row=int(i / 2), column=(i % 2), padx=5, pady=5)
             field_label.pack(side=LEFT)
             spinner.pack(side=RIGHT, expand=YES, fill=X)
             self.spinners[field] = spinner
