@@ -7,7 +7,7 @@ from ConfigManager import *
 from algoimpl import simple_algorithm, advanced_algorithm
 from classifier import Classifier
 from followvideocenter import FollowShapeCenter
-from functions import get_largest_contour, calc_new_mouse_position
+from functions import get_largest_contour, calc_new_mouse_position, calc_coords_change
 
 ALGORITHM_SIMPLE = 0
 ALGORITHM_ADV = 1
@@ -22,7 +22,6 @@ class ImageProcessor:
         self.cam = cam
         self.target_scale = target_scale
         self.custom_simple_ranges = None
-        self.mouse_control = False
         self.fvc = FollowShapeCenter()
         self.detector = None
         self.gesture_move = None
@@ -30,9 +29,6 @@ class ImageProcessor:
 
     def attach_detector(self, detector):
         self.detector = detector
-
-    def enable_mouse_control(self):
-        self.mouse_control = True
 
     def set_gesture_move(self, gesture_move):
         self.gesture_move = gesture_move
@@ -69,27 +65,21 @@ class ImageProcessor:
     def controls(self, processed_image, results):
         gesture = results[0][0]
         probability = results[0][1]
-        if self.mouse_control:
-            even, cX1, cX2, cY1, cY2 = self.fvc.follow_center(processed_image)
+        if probability < 0.65 or gesture == GESTURE_NONE:
+            return
+
+        if self.gesture_move is not None and gesture == self.gesture_move:
+            even, cx1, cx2, cy1, cy2 = self.fvc.follow_center(processed_image)
             x_image_size = processed_image.shape[1]
-            x, y = pyautogui.position()
-            if probability > 0.65 and gesture == self.gesture_move:
-                if even:
-                    x_diff = cX1 - cX2
-                    y_diff = cY1 - cY2
-                    x, y = calc_new_mouse_position(x_diff, y_diff, x_image_size)
-                    self.detector.on_gesture_move(x, y)
-                else:
-                    x_diff = cX2 - cX1
-                    y_diff = cY2 - cY1
-                    x, y = calc_new_mouse_position(x_diff, y_diff, x_image_size)
-                    self.detector.on_gesture_move(x, y)
+            coords_change = calc_coords_change(cx1, cx2, cy1, cy2, even)
+            new_mouse_position = calc_new_mouse_position(coords_change[0], coords_change[1], x_image_size)
+            self.detector.on_gesture_move(new_mouse_position[0], new_mouse_position[1])
 
-            if probability > 0.65 and gesture == self.gesture_click:
-                self.detector.on_gesture_click(x, y)
+        if self.gesture_click is not None and gesture == self.gesture_click:
+            mouse_position = pyautogui.position()
+            self.detector.on_gesture_click(mouse_position[0], mouse_position[1])
 
-        if probability > 0.65 and gesture != NONE:
-            self.detector.on_gesture(gesture)
+        self.detector.on_gesture(gesture)
 
     def start_tensorflow_analyser(self, processed_image):
         return self.classifier.label_image(processed_image)

@@ -11,6 +11,12 @@ def calc_new_mouse_position(x_diff, y_diff, x_image_size):
     return x_pos, y_pos
 
 
+def calc_coords_change(cx1, cx2, cy1, cy2, revert):
+    if revert:
+        return cx2 - cx1, cy2 - cy1
+    return cx2 - cx1, cy2 - cy1
+
+
 def move_mouse(x_pos, y_pos):
     pyautogui.moveTo(x_pos, y_pos)
 
