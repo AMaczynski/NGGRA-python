@@ -22,10 +22,10 @@ class ImageProcessor:
         self.cam = cam
         self.target_scale = target_scale
         self.custom_simple_ranges = None
-        self.mouse_control = True
+        self.mouse_control = False
         self.fvc = FollowShapeCenter()
         self.detector = None
-        self.gesture_move = True
+        self.gesture_move = None
         self.gesture_click = None
 
     def attach_detector(self, detector):
