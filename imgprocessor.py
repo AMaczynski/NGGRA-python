@@ -6,7 +6,8 @@ import pyautogui
 from ConfigManager import *
 from algoimpl import simple_algorithm, advanced_algorithm
 from classifier import Classifier
-from functions import follow_center, get_largest_contour, calc_new_mouse_position
+from followvideocenter import FollowShapeCenter
+from functions import get_largest_contour, calc_new_mouse_position
 
 ALGORITHM_SIMPLE = 0
 ALGORITHM_ADV = 1
@@ -21,10 +22,10 @@ class ImageProcessor:
         self.cam = cam
         self.target_scale = target_scale
         self.custom_simple_ranges = None
-        self.mouse_control = False
-
+        self.mouse_control = True
+        self.fvc = FollowShapeCenter()
         self.detector = None
-        self.gesture_move = None
+        self.gesture_move = True
         self.gesture_click = None
 
     def attach_detector(self, detector):
@@ -43,12 +44,6 @@ class ImageProcessor:
         self.custom_simple_ranges = hsv_ranges
 
     def start_loop(self, target_algorithm, display=False):
-        even = True
-        start = False
-        cX1 = 0
-        cX2 = 0
-        cY1 = 0
-        cY2 = 0
 
         while True:
             ret, frame = self.cam.read()
@@ -59,12 +54,8 @@ class ImageProcessor:
                 break
 
             results = self.start_tensorflow_analyser(processed_image)
-            direction, cX1, cX2, cY1, cY2 = follow_center(processed_image, even, start, cX1, cX2, cY1, cY2)
 
-            self.controls(cX1, cX2, cY1, cY2, even, processed_image, results)
-
-            start = True
-            even = not even
+            self.controls(processed_image, results)
 
             if display:
                 cv2.imshow("Show by CV2", processed_image)
@@ -75,10 +66,11 @@ class ImageProcessor:
         self.cam.release()
         cv2.destroyAllWindows()
 
-    def controls(self, cX1, cX2, cY1, cY2, even, processed_image, results):
+    def controls(self, processed_image, results):
         gesture = results[0][0]
         probability = results[0][1]
         if self.mouse_control:
+            even, cX1, cX2, cY1, cY2 = self.fvc.follow_center(processed_image)
             x_image_size = processed_image.shape[1]
             x, y = pyautogui.position()
             if probability > 0.65 and gesture == self.gesture_move:
