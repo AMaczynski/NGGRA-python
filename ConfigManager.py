@@ -16,6 +16,10 @@ class ConfigManager:
                 self.fun_dictionary[gesture] = NEXT_TRACK
             elif action == MUTE:
                 self.fun_dictionary[gesture] = MUTE
+            elif action == VOL_UP:
+                self.fun_dictionary[gesture] = VOL_UP
+            elif action == VOL_DOWN:
+                self.fun_dictionary[gesture] = VOL_DOWN
             elif action == MOVE_MOUSE:
                 self.has_mouse_control = True
                 self.mouse_move_gesture = gesture

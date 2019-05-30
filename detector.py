@@ -3,7 +3,7 @@ import threading
 import cv2
 
 from ConfigManager import *
-from functions import move_mouse, mouse_click, mute, play, next_track
+from functions import move_mouse, mouse_click, mute, play, next_track, vol_up, vol_down
 from imgprocessor import ImageProcessor
 
 ALGO_SIMPLE = 0
@@ -40,6 +40,10 @@ class Detector:
                     next_track()
                 elif action == MUTE:
                     mute()
+                elif action == VOL_UP:
+                    vol_up()
+                elif action == VOL_DOWN:
+                    vol_down()
                 else:  # mouse move / mouse click / none
                     return
                 self.wait_complete = False

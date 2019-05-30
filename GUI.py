@@ -100,7 +100,7 @@ class ProgramGui:
 
     def make_form(self):
         fields = GESTURE_THUMB, GESTURE_PALM, GESTURE_FIST, GESTURE_STRAIGHT, GESTURE_PEACE
-        values = (NO_ACTION, MOVE_MOUSE, CLICK_MOUSE, PLAY_PAUSE, MUTE, NEXT_TRACK)
+        values = (NO_ACTION, MOVE_MOUSE, CLICK_MOUSE, PLAY_PAUSE, MUTE, NEXT_TRACK, VOL_UP, VOL_DOWN)
         for i, field in enumerate(fields):
             row_frame = Frame(self.entries_frame)
             field_label = Label(row_frame, width=6, text=fields[i], anchor='center')

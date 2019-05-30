@@ -37,6 +37,14 @@ def play():
     pyautogui.press("playpause")
 
 
+def vol_up():
+    pyautogui.press("volumeup")
+
+
+def vol_down():
+    pyautogui.press("volumedown")
+
+
 def get_largest_contour(frame):
     ret, thresh = cv2.threshold(frame, 127, 255, 0)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
