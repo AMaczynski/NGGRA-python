@@ -10,7 +10,7 @@ import imutils
 from PIL import Image
 from PIL import ImageTk
 
-DEFAULT_CONFIG_PATH = "../config.json"
+DEFAULT_CONFIG_PATH = "config.json"
 target_algorithm = 0
 
 
