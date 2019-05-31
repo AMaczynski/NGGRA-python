@@ -50,9 +50,5 @@ class FollowShapeCenter:
         self.even = not self.even
         x_diff = cX_actual - cX_prev
         y_diff = cY_actual - cY_prev
-        if self.start:
-            if abs(x_diff) > 5 or abs(y_diff) > 5:
-                return x_diff, y_diff
-
         self.start = True
         return x_diff, y_diff

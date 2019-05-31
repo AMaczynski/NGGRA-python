@@ -1,17 +1,16 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename
-from detector import Detector
+from img_utils.detector import Detector
 import cv2
-import JsonReader
-import JsonWriter
-from JsonConfig import *
+from config_utils import JsonWriter, JsonReader
+from config_utils.JsonConfig import *
 import threading
 from imutils.video import VideoStream
 import imutils
 from PIL import Image
 from PIL import ImageTk
 
-DEFAULT_CONFIG_PATH = "config.json"
+DEFAULT_CONFIG_PATH = "../config.json"
 target_algorithm = 0
 
 

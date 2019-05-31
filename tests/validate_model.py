@@ -1,10 +1,10 @@
-from classifier import Classifier
+from img_utils.classifier import Classifier
 import os
 
 if __name__ == '__main__':
     classifier = Classifier()
-    f = open("validation.txt", "w")
-    path = "test"
+    f = open("../validation.txt", "w")
+    path = "../test_data"
     images = os.listdir(path)
 
     for image in images:

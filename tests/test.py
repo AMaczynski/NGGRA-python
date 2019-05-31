@@ -1,6 +1,6 @@
 import cv2
 
-from imgprocessor import ImageProcessor, follow_center
+from img_utils.imgprocessor import ImageProcessor
 
 ALGO_SIMPLE = 0
 ALGO_ADV = 1

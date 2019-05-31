@@ -2,7 +2,7 @@ import os
 
 import cv2
 
-from imgprocessor import ImageProcessor
+from img_utils.imgprocessor import ImageProcessor
 
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     ip = ImageProcessor(cam, 0.5)
     start_number = 0
     if grab_test:
-        dir_path = "test"
+        dir_path = "test_data"
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         else:

@@ -7,10 +7,10 @@ import tensorflow as tf
 
 class Classifier:
     def __init__(self):
-        model_file = "model/output_graph.pb"
+        model_file = "../model/output_graph.pb"
         self.graph = self.load_graph(model_file)
 
-        label_file = "model/output_labels.txt"
+        label_file = "../model/output_labels.txt"
         self.labels = self.load_labels(label_file)
 
         input_layer = "Placeholder"

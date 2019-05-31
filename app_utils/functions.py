@@ -6,8 +6,8 @@ def calc_new_mouse_position(x_diff, y_diff, x_image_size):
     x_pos, y_pos = pyautogui.position()
     x_screen, y_screen = pyautogui.size()
     scale = x_screen / x_image_size
-    x_pos = x_pos - x_diff * scale
-    y_pos = y_pos + y_diff * scale
+    x_pos = x_pos - x_diff * scale * 1.1
+    y_pos = y_pos + y_diff * scale * 1.1
     return x_pos, y_pos
 
 

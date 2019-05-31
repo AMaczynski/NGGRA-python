@@ -1,5 +1,5 @@
 import json
-from JsonConfig import *
+from config_utils.JsonConfig import *
 
 default_config = {GESTURE_THUMB: MUTE,
                   GESTURE_PEACE: NEXT_TRACK,

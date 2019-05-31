@@ -770,7 +770,7 @@ def add_final_retrain_ops(class_count, final_tensor_name, bottleneck_tensor,
 
   final_tensor = tf.nn.softmax(logits, name=final_tensor_name)
 
-  # The tf.contrib.quantize functions rewrite the graph in place for
+  # The tf.contrib.quantize app_utils rewrite the graph in place for
   # quantization. The imported model graph has already been rewritten, so upon
   # calling these rewrites, only the newly added final layer will be
   # transformed.
@@ -824,7 +824,7 @@ def add_evaluation_step(result_tensor, ground_truth_tensor):
 def run_final_eval(train_session, module_spec, class_count, image_lists,
                    jpeg_data_tensor, decoded_image_tensor,
                    resized_image_tensor, bottleneck_tensor):
-  """Runs a final evaluation on an eval graph using the test data set.
+  """Runs a final evaluation on an eval graph using the test_data data set.
 
   Args:
     train_session: Session for the train graph with the tensors below.
@@ -852,7 +852,7 @@ def run_final_eval(train_session, module_spec, class_count, image_lists,
           bottleneck_input: test_bottlenecks,
           ground_truth_input: test_ground_truth
       })
-  tf.logging.info('Final test accuracy = %.1f%% (N=%d)' %
+  tf.logging.info('Final test_data accuracy = %.1f%% (N=%d)' %
                   (test_accuracy * 100, len(test_bottlenecks)))
 
   if FLAGS.print_misclassified_test_images:
@@ -1137,7 +1137,7 @@ def main(_):
     # After training is complete, force one last save of the train checkpoint.
     train_saver.save(sess, CHECKPOINT_NAME)
 
-    # We've completed all our training, so run a final test evaluation on
+    # We've completed all our training, so run a final test_data evaluation on
     # some new images we haven't used before.
     run_final_eval(sess, module_spec, class_count, image_lists,
                    jpeg_data_tensor, decoded_image_tensor, resized_image_tensor,
@@ -1213,7 +1213,7 @@ if __name__ == '__main__':
       '--testing_percentage',
       type=int,
       default=10,
-      help='What percentage of images to use as a test set.'
+      help='What percentage of images to use as a test_data set.'
   )
   parser.add_argument(
       '--validation_percentage',
@@ -1238,9 +1238,9 @@ if __name__ == '__main__':
       type=int,
       default=-1,
       help="""\
-      How many images to test on. This test set is only used once, to evaluate
+      How many images to test_data on. This test_data set is only used once, to evaluate
       the final accuracy of the model after training completes.
-      A value of -1 causes the entire test set to be used, which leads to more
+      A value of -1 causes the entire test_data set to be used, which leads to more
       stable results across runs.\
       """
   )
@@ -1250,7 +1250,7 @@ if __name__ == '__main__':
       default=100,
       help="""\
       How many images to use in an evaluation batch. This validation set is
-      used much more often than the test set, and is an early indicator of how
+      used much more often than the test_data set, and is an early indicator of how
       accurate the model is during training.
       A value of -1 causes the entire validation set to be used, which leads to
       more stable results across training iterations, but may be slower on large
@@ -1261,7 +1261,7 @@ if __name__ == '__main__':
       '--print_misclassified_test_images',
       default=False,
       help="""\
-      Whether to print out a list of all misclassified test images.\
+      Whether to print out a list of all misclassified test_data images.\
       """,
       action='store_true'
   )

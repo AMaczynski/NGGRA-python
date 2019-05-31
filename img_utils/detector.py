@@ -2,9 +2,9 @@ import threading
 
 import cv2
 
-from ConfigManager import *
-from functions import move_mouse, mouse_click, mute, play, next_track, vol_up, vol_down
-from imgprocessor import ImageProcessor
+from config_utils.ConfigManager import *
+from app_utils.functions import move_mouse, mouse_click, mute, play, next_track, vol_up, vol_down
+from img_utils.imgprocessor import ImageProcessor
 
 ALGO_SIMPLE = 0
 ALGO_ADV = 1
@@ -47,7 +47,7 @@ class Detector:
                 else:  # mouse move / mouse click / none
                     return
                 self.wait_complete = False
-                timer = threading.Timer(3.0, self.end_wait)
+                timer = threading.Timer(1.0, self.end_wait)
                 timer.start()
             except TypeError:
                 print(gesture)

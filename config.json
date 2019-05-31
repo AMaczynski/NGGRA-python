@@ -1,7 +1,7 @@
 {
-    "thumb": "Mute",
-    "peace": "Next Track",
-    "straight": "Play/Pause",
+    "thumb": "Volume Up",
     "palm": "Move mouse",
-    "fist": "Click mouse"
+    "fist": "Volume Down",
+    "straight": "Play/Pause",
+    "peace": "Next Track"
 }

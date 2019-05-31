@@ -3,11 +3,11 @@ from time import sleep
 import cv2
 import pyautogui
 
-from ConfigManager import *
-from algoimpl import simple_algorithm, advanced_algorithm
-from classifier import Classifier
-from followvideocenter import FollowShapeCenter
-from functions import get_largest_contour, calc_new_mouse_position, calc_coords_change
+from config_utils.ConfigManager import *
+from img_utils.algoimpl import simple_algorithm, advanced_algorithm
+from img_utils.classifier import Classifier
+from img_utils.followvideocenter import FollowShapeCenter
+from app_utils.functions import get_largest_contour, calc_new_mouse_position
 
 ALGORITHM_SIMPLE = 0
 ALGORITHM_ADV = 1
@@ -68,8 +68,8 @@ class ImageProcessor:
         if probability < 0.65 or gesture == GESTURE_NONE:
             return
 
+        cx_diff, cy_diff = self.fvc.follow_center(processed_image)
         if self.gesture_move is not None and gesture == self.gesture_move:
-            cx_diff, cy_diff = self.fvc.follow_center(processed_image)
             x_image_size = processed_image.shape[1]
             new_mouse_position = calc_new_mouse_position(cx_diff, cy_diff, x_image_size)
             self.detector.on_gesture_move(new_mouse_position[0], new_mouse_position[1])
@@ -98,7 +98,7 @@ class ImageProcessor:
 
             if grabber_state == STATE_GRABBING:
                 if grab_test:
-                    img_name = "test/test_%s_%d.jpg" % (file_name, start_number + img_counter)
+                    img_name = "test_data/test_%s_%d.jpg" % (file_name, start_number + img_counter)
                     cv2.imwrite(img_name, processed_image)
                 else:
                     img_name = "output/%s/%s_%d.jpg" % (file_name, file_name, start_number + img_counter)

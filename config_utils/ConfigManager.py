@@ -1,4 +1,4 @@
-from JsonConfig import *
+from config_utils.JsonConfig import *
 
 
 class ConfigManager:
